@@ -112,7 +112,7 @@ export function RegisterForm({
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input {...field} type="password" id="password" required />
                 </FormControl>

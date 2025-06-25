@@ -1,6 +1,7 @@
 "use server";
 
 import { UserBook, UserBookSchema } from "@/schema/UserBookSchema";
+import { cookies } from "next/headers";
 
 export async function addUserBook(userBook: UserBook) {
   const API_BASE_URL =
@@ -13,12 +14,15 @@ export async function addUserBook(userBook: UserBook) {
   }
 
   try {
+    const accessToken = (await cookies()).get("access-token")?.value || "";
     const response = await fetch(
       `${API_BASE_URL}/user_books/${userBook.userId}/${userBook.bookId}`,
       {
         method: "POST",
         headers: {
           Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(data),
       }

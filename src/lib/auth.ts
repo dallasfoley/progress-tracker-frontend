@@ -10,7 +10,7 @@ export async function getCurrentUser(): Promise<User | null> {
       return null;
     }
 
-    return JSON.parse(userSession.value) as User;
+    return JSON.parse(userSession.value);
   } catch (error) {
     console.error("Error getting current user:", error);
     return null;

@@ -2,6 +2,7 @@
 
 import { LoginEmailSchema, User } from "@/schema/UserSchema";
 import { handleResponse } from "@/lib/handleResponse";
+import { cookies } from "next/headers";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:7000/api";
@@ -17,6 +18,7 @@ export async function loginEmail(formData: {
   }
 
   try {
+    const accessToken = (await cookies()).get("access-token")?.value || "";
     const form = new FormData();
     form.append("email", data.email);
     form.append("password", data.password);
@@ -25,11 +27,28 @@ export async function loginEmail(formData: {
       method: "POST",
       headers: {
         Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
       },
       body: form,
     });
 
-    console.log("Response status:", response.status);
+    if (response.ok) {
+      const result = await response.json();
+      const cookieStore = await cookies();
+      cookieStore.set("user-session", JSON.stringify(result.data), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60,
+      });
+      cookieStore.set("access-token", JSON.stringify(result.accessToken), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60,
+      });
+    }
     return await response.json();
   } catch (error) {
     console.error("Network error during signup:", error);

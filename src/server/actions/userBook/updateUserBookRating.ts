@@ -2,18 +2,22 @@
 
 import { UserBookDetails } from "@/schema/UserBookSchema";
 import { API_BASE_URL } from "../book/getAllBooks";
+import { cookies } from "next/headers";
 
 export async function updateUserBookRating(
   userbook: UserBookDetails,
   rating: number
 ) {
   try {
+    const accessToken = (await cookies()).get("access-token")?.value || "";
     const response = await fetch(
       `${API_BASE_URL}/user_books/rating/${userbook.userId}/${userbook.bookId}`,
       {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
         },
         body: JSON.stringify({ rating }),
       }

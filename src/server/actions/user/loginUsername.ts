@@ -31,13 +31,19 @@ export async function loginUsername(formData: {
     });
 
     if (response.ok) {
-      const result = await handleResponse<User>(response);
+      const result = await response.json();
       const cookieStore = await cookies();
-      cookieStore.set("user-session", JSON.stringify(result), {
+      cookieStore.set("user-session", JSON.stringify(result.data), {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 7, // 7 days
+        maxAge: 60 * 60,
+      });
+      cookieStore.set("access-token", JSON.stringify(result.accessToken), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60,
       });
       return {
         success: true,
@@ -45,7 +51,11 @@ export async function loginUsername(formData: {
         message: "Login successful",
       };
     } else {
-      await handleResponse<User>(response);
+      return {
+        success: false,
+        data: null,
+        message: "Login failed",
+      };
     }
   } catch (error) {
     console.error("Network error during signup:", error);
