@@ -1,7 +1,6 @@
 "use server";
 
-import { LoginEmailSchema, User } from "@/schema/UserSchema";
-import { handleResponse } from "@/lib/handleResponse";
+import { LoginEmailSchema } from "@/schema/UserSchema";
 import { cookies } from "next/headers";
 
 const API_BASE_URL =
@@ -18,7 +17,6 @@ export async function loginEmail(formData: {
   }
 
   try {
-    const accessToken = (await cookies()).get("access-token")?.value || "";
     const form = new FormData();
     form.append("email", data.email);
     form.append("password", data.password);
@@ -27,8 +25,6 @@ export async function loginEmail(formData: {
       method: "POST",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
       },
       body: form,
     });

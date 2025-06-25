@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "../ui/card";
+import Link from "next/link";
 
 export function LoginEmailForm({
   className,
@@ -46,13 +47,14 @@ export function LoginEmailForm({
           <Button
             variant="outline"
             className="w-full flex items-center justify-around"
+            asChild
           >
-            Login with Username
+            <Link href="/login/username">Login with Username</Link>
           </Button>
         </div>
         <div className="text-center text-sm">
           Don&apos;t have an account?{" "}
-          <a href="#" className="underline underline-offset-4">
+          <a href="/register" className="underline underline-offset-4">
             Sign up
           </a>
         </div>

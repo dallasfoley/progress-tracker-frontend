@@ -10,8 +10,14 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getCurrentUser } from "@/lib/auth";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function SettingsPage() {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("user-session")) {
+    redirect("/");
+  }
   const user = await getCurrentUser();
   return (
     <div className="min-h-svh w-full flex justify-start items-center">
