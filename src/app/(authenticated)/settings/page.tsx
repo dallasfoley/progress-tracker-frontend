@@ -1,3 +1,4 @@
+import DeleteAccountButton from "@/components/buttons/delete-account-button";
 import LogoutButton from "@/components/buttons/logout-button";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,8 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getCurrentUser } from "@/lib/auth";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const user = await getCurrentUser();
   return (
     <div className="min-h-svh w-full flex justify-start items-center">
       <Tabs
@@ -49,7 +52,7 @@ export default function SettingsPage() {
               </div>
               <div className="flex justify-between items-center my-8">
                 <h3 className="flex justify-between items-center">Delete</h3>
-                <Button variant="destructive">Delete Account</Button>
+                {user?.id && <DeleteAccountButton id={user?.id} />}
               </div>
               <div className="flex justify-between items-center">
                 <h3 className="flex justify-between items-center">

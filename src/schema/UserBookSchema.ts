@@ -1,19 +1,18 @@
 import { z } from "zod";
 
-export const UserBookFormSchema = z.object({
-  userId: z.number().int(),
-  bookId: z.number().int(),
+export const UserBookChangableFieldsSchema = z.object({
   status: z.enum(["NOT_STARTED", "IN_PROGRESS", "COMPLETED"]),
   userRating: z.number().int().min(0).max(5),
   currentPage: z.number().int().min(0),
 });
 
-export const UserBookSchema = z.object({
+export type UserBookChangableFields = z.infer<
+  typeof UserBookChangableFieldsSchema
+>;
+
+export const UserBookSchema = UserBookChangableFieldsSchema.extend({
   userId: z.number().int(),
   bookId: z.number().int(),
-  status: z.enum(["NOT_STARTED", "IN_PROGRESS", "COMPLETED"]),
-  userRating: z.number().int().min(0).max(5),
-  currentPage: z.number().int().min(0),
 });
 
 export type UserBook = z.infer<typeof UserBookSchema>;

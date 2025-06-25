@@ -29,7 +29,7 @@ export default async function DashboardPage() {
           Welcome back, {user.username}!
         </h1>
       </div>
-      <Card className="p-4 max-w-sm mx-auto md:max-w-2xl lg:max-w-4xl xl:max-w-6xl">
+      <Card className="p-2 md:p-4 max-w-sm mx-auto md:max-w-2xl lg:max-w-4xl xl:max-w-6xl">
         <CardHeader>
           <h3 className="text-4xl font-semibold text-center">
             Your Reading List
