@@ -24,7 +24,7 @@ export type Register = z.infer<typeof RegisterSchema>;
 
 export const UserSchema = RegisterSchema.extend({
   id: z.number().int(),
-  role: z.enum(["NOT_STARTED", "IN_PROGRESS", "COMPLETED"]),
+  role: z.enum(["USER", "ADMIN"]),
 });
 
 export type User = z.infer<typeof UserSchema>;

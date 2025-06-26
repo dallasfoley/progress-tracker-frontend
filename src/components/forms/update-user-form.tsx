@@ -10,20 +10,15 @@ import {
 } from "../ui/form";
 import { Button } from "../ui/button";
 import { useForm } from "react-hook-form";
-import { Register, RegisterSchema } from "@/schema/UserSchema";
+import { Register, RegisterSchema, User } from "@/schema/UserSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
-import { deleteUser } from "@/server/actions/user/deleteUser";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
-export default function ValidateFullUserForm({
-  id,
-  toDelete,
-}: {
-  id: number;
-  toDelete: boolean;
-}) {
+import { useRouter } from "next/navigation";
+import { updateUser } from "@/server/actions/user/updateUser";
+
+export default function UpdateUserForm({ user }: { user: User }) {
   const router = useRouter();
   const form = useForm<Register>({
     resolver: zodResolver(RegisterSchema),
@@ -36,15 +31,11 @@ export default function ValidateFullUserForm({
 
   const onSubmit = async (formData: Register) => {
     try {
-      if (toDelete) {
-        const res = await deleteUser(id);
-        if (res?.success) {
-          toast.success("Success!");
-          router.refresh();
-          router.push("/");
-        }
-      } else {
-        router.push("/update");
+      const res = await updateUser(formData, user.id);
+      if (res?.success) {
+        toast.success("Success!");
+        router.refresh();
+        router.push("/");
       }
     } catch (e) {
       console.error("Error during deletion:", e);
@@ -58,9 +49,9 @@ export default function ValidateFullUserForm({
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>New Username</FormLabel>
               <FormControl>
-                <Input placeholder="Username" {...field} />
+                <Input defaultValue={user.username} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -71,9 +62,9 @@ export default function ValidateFullUserForm({
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>NewEmail</FormLabel>
               <FormControl>
-                <Input placeholder="Email" {...field} />
+                <Input defaultValue={user.email} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -84,17 +75,15 @@ export default function ValidateFullUserForm({
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>New Password</FormLabel>
               <FormControl>
-                <Input placeholder="Password" {...field} />
+                <Input defaultValue={user.password} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">
-          {toDelete ? "Delete User" : "Update User"}
-        </Button>
+        <Button type="submit">Update</Button>
       </form>
     </Form>
   );

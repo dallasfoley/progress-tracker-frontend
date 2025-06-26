@@ -1,8 +1,7 @@
 "use client";
 
 import { Button } from "../ui/button";
-import { Popover, PopoverContent } from "../ui/popover";
-import { PopoverTrigger } from "@radix-ui/react-popover";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Label } from "@radix-ui/react-label";
 import ValidateFullUserForm from "../forms/validate-full-user-form";
 
@@ -11,9 +10,9 @@ export default function DeleteAccountButton({ id }: { id: number }) {
     <div className="flex justify-center">
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant={"destructive"} className="">
+          <Label className="rounded-lg text-white bg-red-600 hover:bg-red-700 hover:cursor-pointer p-2 md:p-4">
             Delete Account
-          </Button>
+          </Label>
         </PopoverTrigger>
         <PopoverContent>
           <div className="space-y-2">
@@ -27,7 +26,7 @@ export default function DeleteAccountButton({ id }: { id: number }) {
                 </Button>
               </PopoverTrigger>
               <PopoverContent>
-                <ValidateFullUserForm id={id} />
+                <ValidateFullUserForm id={id} toDelete={true} />
               </PopoverContent>
             </Popover>
           </div>

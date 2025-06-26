@@ -13,3 +13,10 @@ export const BookSchema = z.object({
 });
 
 export type Book = z.infer<typeof BookSchema>;
+
+export const BookDetailsSchema = BookSchema.extend({
+  inProgressCount: z.number().int().min(0),
+  completedCount: z.number().int().min(0),
+});
+
+export type BookDetails = z.infer<typeof BookDetailsSchema>;

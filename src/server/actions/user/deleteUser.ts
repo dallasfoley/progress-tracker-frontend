@@ -18,9 +18,10 @@ export async function deleteUser(id: number) {
     });
     if (response.ok) {
       await logout();
+      return { success: true, message: "User deleted successfully!" };
     }
   } catch (error) {
     console.error("Network error during signup:", error);
-    throw error;
+    return { success: false, message: "Failed to delete user." };
   }
 }

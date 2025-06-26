@@ -69,7 +69,9 @@ export default function AddUserBookButton({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button>Add</Button>
+        <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2 rounded-lg transition-all duration-300 hover:shadow-lg">
+          Add
+        </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
         <div className="grid gap-4">
