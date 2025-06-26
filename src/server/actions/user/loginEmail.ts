@@ -30,8 +30,10 @@ export async function loginEmail(formData: {
     });
 
     if (response.ok) {
-      const result = await response.json();
-      const cookieStore = await cookies();
+      const [result, cookieStore] = await Promise.all([
+        response.json(),
+        cookies(),
+      ]);
       cookieStore.set("user-session", JSON.stringify(result.data), {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -44,10 +46,25 @@ export async function loginEmail(formData: {
         sameSite: "lax",
         maxAge: 60 * 60,
       });
+      return {
+        success: true,
+        message: "Login successful",
+        data: result.data,
+      };
+    } else {
+      const result = await response.json();
+      return {
+        success: false,
+        message: result.message || "Login failed",
+        data: null,
+      };
     }
-    return await response.json();
   } catch (error) {
-    console.error("Network error during signup:", error);
-    throw error;
+    console.error("Error logging in:", error);
+    return {
+      success: false,
+      message: "Login failed",
+      data: null,
+    };
   }
 }

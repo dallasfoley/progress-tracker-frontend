@@ -1,5 +1,6 @@
 import DeleteAccountButton from "@/components/buttons/delete-account-button";
 import LogoutButton from "@/components/buttons/logout-button";
+import UpdateAccountButton from "@/components/buttons/update-account-button";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,11 +20,15 @@ export default async function SettingsPage() {
     redirect("/");
   }
   const user = await getCurrentUser();
+
+  if (!user || !user.id) {
+    redirect("/");
+  }
   return (
     <div className="min-h-svh w-full flex justify-start items-center">
       <Tabs
         defaultValue="account"
-        className="w-full flex justify-start items-center"
+        className="w-full flex justify-start items-center border-red-700 border-2"
       >
         <TabsList className="">
           <TabsTrigger value="theme">Theme</TabsTrigger>
@@ -58,13 +63,13 @@ export default async function SettingsPage() {
               </div>
               <div className="flex justify-between items-center my-8">
                 <h3 className="flex justify-between items-center">Delete</h3>
-                {user?.id && <DeleteAccountButton id={user?.id} />}
+                {user?.id && <DeleteAccountButton id={user.id} />}
               </div>
               <div className="flex justify-between items-center">
                 <h3 className="flex justify-between items-center">
                   Update Account Info
                 </h3>
-                <Button variant={"outline"}>Update</Button>
+                <UpdateAccountButton id={user.id} />
               </div>
             </CardContent>
           </Card>

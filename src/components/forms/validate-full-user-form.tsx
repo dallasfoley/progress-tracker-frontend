@@ -17,8 +17,15 @@ import { deleteUser } from "@/server/actions/user/deleteUser";
 import { toast } from "sonner";
 
 import { useRouter } from "next/navigation";
+import { updateUser } from "@/server/actions/user/updateUser";
 
-export default function ValidateFullUserForm({ id }: { id: number }) {
+export default function ValidateFullUserForm({
+  id,
+  toDelete,
+}: {
+  id: number;
+  toDelete: boolean;
+}) {
   const router = useRouter();
   const form = useForm<Register>({
     resolver: zodResolver(RegisterSchema),
@@ -29,11 +36,13 @@ export default function ValidateFullUserForm({ id }: { id: number }) {
     },
   });
 
-  const onSubmit = async () => {
+  const onSubmit = async (formData: Register) => {
     try {
-      const res = await deleteUser(id);
-      if (res) {
-        toast.success("User deleted successfully!");
+      const res = toDelete
+        ? await deleteUser(id)
+        : await updateUser(formData, id);
+      if (res?.success) {
+        toast.success("Success!");
         router.refresh();
         router.push("/");
       }
