@@ -43,9 +43,14 @@ export function RegisterForm({
   }) => {
     try {
       const res = await register(formData);
-      if (res) {
+      console.log(res);
+      if (res?.success) {
+        console.log(res);
         toast.success("Registration successful! Redirecting to dashboard...");
         router.push("/dashboard");
+      } else {
+        setError(res?.message);
+        toast.error(res?.message);
       }
     } catch (e) {
       console.error("Error during registration:", e);

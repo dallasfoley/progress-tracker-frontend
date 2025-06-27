@@ -9,7 +9,7 @@ export default async function UpdatePage() {
     redirect("/login");
   }
   return (
-    <div>
+    <div className="min-h-svh flex justify-center items-center text-zinc-200 text-lg">
       <UpdateUserForm user={user} />
     </div>
   );

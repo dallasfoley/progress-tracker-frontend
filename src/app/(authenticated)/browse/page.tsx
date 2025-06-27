@@ -1,5 +1,6 @@
 import Search from "@/components/browse/search";
 import AddUserBookButton from "@/components/buttons/add-userbook-button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,14 +9,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
-import { Book, BookDetails } from "@/schema/BookSchema";
+import { BookDetails } from "@/schema/BookSchema";
 import { getAllBooks } from "@/server/actions/book/getAllBooks";
 import Image from "next/image";
+import Link from "next/link";
 
 export default async function BrowsePage() {
   const [user, books] = await Promise.all([getCurrentUser(), getAllBooks()]);
 
   // console.log(books);
+  console.log("role: ", user?.role);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-slate-900 px-4 py-8">
@@ -23,6 +26,12 @@ export default async function BrowsePage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(120,119,198,0.15),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(255,255,255,0.05),transparent_50%)]" />
       </div>
+
+      {user?.role === "ADMIN" && (
+        <Button variant="secondary" asChild>
+          <Link href="/admin/add">Add Book to Database</Link>
+        </Button>
+      )}
 
       <div className="relative z-10 max-w-7xl mx-auto">
         <Search books={books} />
@@ -109,6 +118,11 @@ export default async function BrowsePage() {
                   <div className="mt-4">
                     <AddUserBookButton book={book} user={user} />
                   </div>
+                )}
+                {user?.role === "ADMIN" && (
+                  <Button variant="secondary" className="w-full mt-4" asChild>
+                    <Link href={`/admin/${book.id}`}>Open in Admin Page</Link>
+                  </Button>
                 )}
               </CardContent>
             </Card>

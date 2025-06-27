@@ -1,7 +1,6 @@
 "use server";
 
-import { LoginUsernameSchema, User } from "@/schema/UserSchema";
-import { handleResponse } from "@/lib/handleResponse";
+import { LoginUsernameSchema } from "@/schema/UserSchema";
 import { cookies } from "next/headers";
 
 const API_BASE_URL =

@@ -1,7 +1,7 @@
 import DeleteAccountButton from "@/components/buttons/delete-account-button";
 import LogoutButton from "@/components/buttons/logout-button";
 import UpdateAccountButton from "@/components/buttons/update-account-button";
-import ThemeSelector from "@/components/theme-components/theme-selector";
+// import ThemeSelector from "@/components/theme-components/theme-selector";
 import ThemeTab from "@/components/theme-components/theme-tab";
 import {
   Card,
@@ -12,19 +12,20 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getCurrentUser } from "@/lib/auth";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function SettingsPage() {
-  const cookieStore = await cookies();
-  if (!cookieStore.get("user-session")) {
+  let user;
+  try {
+    user = await getCurrentUser();
+    if (!user || !user.id) {
+      redirect("/");
+    }
+  } catch (e) {
+    console.log(e);
     redirect("/");
   }
-  const user = await getCurrentUser();
 
-  if (!user || !user.id) {
-    redirect("/");
-  }
   return (
     <div className="min-h-svh w-full flex justify-start items-start">
       <Tabs
@@ -36,12 +37,12 @@ export default async function SettingsPage() {
         </h1>
         <TabsList className="">
           <TabsTrigger value="theme">Theme</TabsTrigger>
-          <TabsTrigger value="account">User</TabsTrigger>
+          <TabsTrigger value="user">User</TabsTrigger>
         </TabsList>
         <TabsContent value="theme" className="w-11/12 md:w-3/4 p-4 md:p-8">
           <ThemeTab />
         </TabsContent>
-        <TabsContent value="account" className="w-11/12 md:w-3/4 p-4 md:p-8">
+        <TabsContent value="user" className="w-11/12 md:w-3/4 p-4 md:p-8">
           <Card className="w-full md:p-8">
             <CardHeader>
               <CardTitle className="text-center font-semibold text-2xl">

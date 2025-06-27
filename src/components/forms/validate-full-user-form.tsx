@@ -34,13 +34,12 @@ export default function ValidateFullUserForm({
     },
   });
 
-  const onSubmit = async (formData: Register) => {
+  const onSubmit = async () => {
     try {
       if (toDelete) {
         const res = await deleteUser(id);
         if (res?.success) {
           toast.success("Success!");
-          router.refresh();
           router.push("/");
         }
       } else {
@@ -53,11 +52,14 @@ export default function ValidateFullUserForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FormLabel className="text-xl font-semibold ">
+          Validate Credentials
+        </FormLabel>
         <FormField
           control={form.control}
           name="username"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="my-4">
               <FormLabel>Username</FormLabel>
               <FormControl>
                 <Input placeholder="Username" {...field} />
@@ -70,7 +72,7 @@ export default function ValidateFullUserForm({
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="my-4">
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input placeholder="Email" {...field} />
@@ -83,7 +85,7 @@ export default function ValidateFullUserForm({
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="my-4">
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <Input placeholder="Password" {...field} />
@@ -92,8 +94,8 @@ export default function ValidateFullUserForm({
             </FormItem>
           )}
         />
-        <Button type="submit">
-          {toDelete ? "Delete User" : "Update User"}
+        <Button type="submit" className="w-full">
+          {toDelete ? "Validate and Delete User" : "Update User"}
         </Button>
       </form>
     </Form>

@@ -16,7 +16,7 @@ export default function DeleteAccountButton({ id }: { id: number }) {
         </PopoverTrigger>
         <PopoverContent>
           <div className="space-y-2">
-            <Label className="text-sm">
+            <Label className="text-sm mr-4">
               Are you sure you want to delete your account?
             </Label>
             <Popover>

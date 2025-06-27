@@ -14,21 +14,42 @@ import { redirect } from "next/navigation";
 import { CiSearch } from "react-icons/ci";
 
 export default async function DashboardPage() {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    console.log(user);
+  let user;
+  let success: boolean = false;
+  let message: string = "";
+  let data: UserBookDetails[] = [];
+  try {
+    user = await getCurrentUser();
+    if (user?.id) {
+      const response = await getUserBooks(user.id);
+      if (response.success && response.data) {
+        success = response.success;
+        message = response.message;
+        data = response.data;
+      }
+    }
+  } catch (e) {
+    console.log(e);
     redirect("/");
   }
-  const { success, message, data } = await getUserBooks(user.id);
+  if (!success || !user || !data) {
+    redirect("/");
+  }
 
   return (
-    <main className="container mx-auto py-8">
+    <main className="container flex flex-col items-center mx-auto py-8">
       <div className="mb-8">
         <h1 className="text-3xl text-center font-bold text-zinc-200">
           Welcome back, {user.username}!
         </h1>
       </div>
+      {user.role === "ADMIN" && (
+        <Button className="mb-8" variant="secondary" asChild>
+          <Link className="text-zinc-900" href="/admin">
+            Admin Dashboard
+          </Link>
+        </Button>
+      )}
       <Card className="p-2 md:p-4 max-w-sm mx-auto md:max-w-2xl lg:max-w-4xl xl:max-w-6xl">
         <CardHeader>
           <h3 className="text-4xl font-semibold text-center">

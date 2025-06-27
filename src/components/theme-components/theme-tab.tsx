@@ -1,6 +1,6 @@
 "use client";
 
-import { useTheme } from "next-themes";
+//import { useTheme } from "next-themes";
 import { Button } from "../ui/button";
 import {
   Card,
@@ -9,7 +9,7 @@ import {
   CardDescription,
   CardContent,
 } from "../ui/card";
-import ThemeSelector from "./theme-selector";
+//import ThemeSelector from "./theme-selector";
 //import CustomColorPicker from "./color-picker";
 
 export default function ThemeTab() {

@@ -65,7 +65,7 @@ export default function UpdateUserBookForm({
         } else if (newStatus === "NOT_STARTED") {
           await updateUserBookPage(userBook, 0);
         }
-        form.setValue("status", newStatus as any);
+        form.setValue("status", newStatus as UserBookDetails["status"]);
         router.refresh();
         toast.success("Status updated successfully!");
       } catch (error) {

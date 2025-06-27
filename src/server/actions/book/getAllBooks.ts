@@ -21,12 +21,12 @@ export async function getAllBooks(): Promise<BookDetails[]> {
         await response.text()
       );
       throw new Error(`Error fetching user books: ${response.statusText}`);
+    } else {
+      const data = await response.json();
+      return data;
     }
-
-    const data = await response.json();
-    console.log(data);
-    return data;
   } catch (e) {
+    console.error("Network error during signup:", e);
     throw e;
   }
 }

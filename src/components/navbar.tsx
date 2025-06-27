@@ -2,8 +2,6 @@ import Link from "next/link";
 import { MdMenuBook } from "react-icons/md";
 import { IoIosSettings } from "react-icons/io";
 import { FaUser, FaHome } from "react-icons/fa";
-import { MdOutlineLogout } from "react-icons/md";
-import { logout } from "@/server/actions/user/logout";
 import LogoutLink from "./buttons/logout-link";
 
 export default function Navbar() {
