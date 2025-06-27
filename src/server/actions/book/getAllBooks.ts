@@ -13,6 +13,7 @@ export async function getAllBooks(): Promise<BookDetails[]> {
         Accept: "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
+      cache: "force-cache",
     });
 
     if (!response.ok) {

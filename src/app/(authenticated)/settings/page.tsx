@@ -1,6 +1,4 @@
-import DeleteAccountButton from "@/components/buttons/delete-account-button";
-import LogoutButton from "@/components/buttons/logout-button";
-import UpdateAccountButton from "@/components/buttons/update-account-button";
+import UserSettingsButtons from "@/components/settings/user-settings-buttons";
 // import ThemeSelector from "@/components/theme-components/theme-selector";
 import ThemeTab from "@/components/theme-components/theme-tab";
 import {
@@ -11,21 +9,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getCurrentUser } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { Suspense } from "react";
+
+export const experimental_ppr = true;
 
 export default async function SettingsPage() {
-  let user;
-  try {
-    user = await getCurrentUser();
-    if (!user || !user.id) {
-      redirect("/");
-    }
-  } catch (e) {
-    console.log(e);
-    redirect("/");
-  }
-
   return (
     <div className="min-h-svh w-full flex justify-start items-start">
       <Tabs
@@ -53,18 +41,9 @@ export default async function SettingsPage() {
               Manage your account settings
             </CardDescription>
             <CardContent>
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-semibold">Logout</h3>
-                <LogoutButton />
-              </div>
-              <div className="flex justify-between items-center my-8">
-                <h3 className="text-xl font-semibold">Delete</h3>
-                {user?.id && <DeleteAccountButton id={user.id} />}
-              </div>
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-semibold">Update Account Info</h3>
-                <UpdateAccountButton id={user.id} />
-              </div>
+              <Suspense fallback={<div>Loading...</div>}>
+                <UserSettingsButtons />
+              </Suspense>
             </CardContent>
           </Card>
         </TabsContent>

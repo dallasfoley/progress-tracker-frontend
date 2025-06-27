@@ -14,7 +14,6 @@ import { Register, RegisterSchema, User } from "@/schema/UserSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
-
 import { useRouter } from "next/navigation";
 import { updateUser } from "@/server/actions/user/updateUser";
 import { Label } from "../ui/label";

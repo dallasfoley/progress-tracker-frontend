@@ -18,6 +18,7 @@ export async function getUserBooks(userId: number): Promise<{
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
+      next: { tags: ["user-books"] },
     });
 
     const res = await response.json();

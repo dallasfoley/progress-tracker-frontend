@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const API_BASE_URL =
@@ -19,9 +20,15 @@ export async function deleteUserBook(userId: number, bookId: number) {
         },
       }
     );
-
-    console.log("Response status:", response.status);
-    return await response.json();
+    const res = await response.json();
+    if (response.ok) {
+      revalidateTag("user-books");
+      return {
+        success: res.success ?? true,
+        message: res.message || "Book added successfully!",
+        data: res.data,
+      };
+    }
   } catch (error) {
     console.error("Network error during signup:", error);
     throw error;

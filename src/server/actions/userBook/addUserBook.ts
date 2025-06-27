@@ -1,6 +1,7 @@
 "use server";
 
 import { UserBook, UserBookSchema } from "@/schema/UserBookSchema";
+import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 export async function addUserBook(userBook: UserBook) {
@@ -36,13 +37,14 @@ export async function addUserBook(userBook: UserBook) {
         success: false,
         message: res.message || `Server error: ${response.status}`,
       };
+    } else {
+      revalidateTag("user-books");
+      return {
+        success: res.success ?? true,
+        message: res.message || "Book added successfully!",
+        data: res.data,
+      };
     }
-
-    return {
-      success: res.success ?? true,
-      message: res.message || "Book added successfully!",
-      data: res.data,
-    };
   } catch (error) {
     console.error("Error in addUserBook:", error);
 
