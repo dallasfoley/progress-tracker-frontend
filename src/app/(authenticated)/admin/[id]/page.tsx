@@ -9,17 +9,16 @@ export default async function AdminPage({
 }) {
   let data;
   try {
-    const [{ id }, cookieStore] = await Promise.all([params, cookies()]);
-
-    const accessToken = cookieStore.get("user-session")?.value;
+    const { id } = await params;
 
     const response = await fetch(`${process.env.API_BASE_URL}/books/${id}`, {
       method: "GET",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
       },
+      credentials: "include",
+      cache: "force-cache",
     });
     if (!response.ok) {
       return (

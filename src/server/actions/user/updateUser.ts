@@ -3,8 +3,7 @@
 import { Register, RegisterSchema } from "@/schema/UserSchema";
 import { cookies } from "next/headers";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:7000/api";
+const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:7000/api";
 
 export async function updateUser(user: Register, id: number) {
   const { success, error, data } = RegisterSchema.safeParse(user);
@@ -13,8 +12,6 @@ export async function updateUser(user: Register, id: number) {
     throw new Error(error.message);
   }
   const cookieStore = await cookies();
-  const accessToken = cookieStore.get("access-token")?.value || "";
-
   try {
     const { username, email, password } = data;
     const userData = { id, username, email, password };
@@ -23,8 +20,8 @@ export async function updateUser(user: Register, id: number) {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
       },
+      credentials: "include",
       body: JSON.stringify(userData),
     });
 

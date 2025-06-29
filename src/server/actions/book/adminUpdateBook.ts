@@ -1,20 +1,18 @@
 "use server";
 
 import { Book } from "@/schema/BookSchema";
-import { cookies } from "next/headers";
 
 export async function adminUpdateBook(
   book: Book
 ): Promise<{ success: boolean; message: string; data: Book | null }> {
   try {
-    const accessToken = (await cookies()).get("access-token")?.value || "";
     const response = await fetch(`${process.env.API_BASE_URL}/books`, {
       method: "PUT",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
       },
+      credentials: "include",
       body: JSON.stringify(book),
     });
     const res = await response.json();

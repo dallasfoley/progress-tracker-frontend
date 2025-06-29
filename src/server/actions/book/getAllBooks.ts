@@ -2,17 +2,16 @@ import { BookDetails } from "@/schema/BookSchema";
 import { cookies } from "next/headers";
 
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:7000/api";
+  process.env.API_BASE_URL || "http://localhost:7000/api";
 
 export async function getAllBooks(): Promise<BookDetails[]> {
   try {
-    const accessToken = (await cookies()).get("access-token")?.value || "";
     const response = await fetch(`${API_BASE_URL}/books`, {
       method: "GET",
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${accessToken}`,
       },
+      credentials: "include",
       cache: "force-cache",
     });
 
