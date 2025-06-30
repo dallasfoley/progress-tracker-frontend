@@ -1,16 +1,19 @@
 "use server";
 
 import { AddBook } from "@/schema/BookSchema";
+import { cookies } from "next/headers";
 
 const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:7000/api";
 
 export async function adminAddBook(book: AddBook) {
+  const accessToken = (await cookies()).get("accessToken")?.value;
   try {
     const response = await fetch(`${API_BASE_URL}/books`, {
       method: "POST",
       headers: {
-        Accept: "application/json",
         "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
       },
       credentials: "include",
       body: JSON.stringify(book),

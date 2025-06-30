@@ -1,18 +1,21 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
+import { cookies } from "next/headers";
 
 const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:7000/api";
 
 export async function deleteUserBook(userId: number, bookId: number) {
   try {
+    const accessToken = (await cookies()).get("accessToken")?.value;
     const response = await fetch(
       `${API_BASE_URL}/user_books/${userId}/${bookId}`,
       {
         method: "DELETE",
         headers: {
-          Accept: "application/json",
           "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         credentials: "include",
       }

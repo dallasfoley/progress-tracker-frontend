@@ -102,7 +102,7 @@ export default function AddUserBookButton({
                 <Label htmlFor="r3">Current Page</Label>
                 <Input
                   type="number"
-                  value={currentPage}
+                  value={currentPage.toString()}
                   onChange={(e) => setCurrentPage(Number(e.target.value))}
                 />
               </div>

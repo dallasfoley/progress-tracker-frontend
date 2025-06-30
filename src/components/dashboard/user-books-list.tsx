@@ -27,7 +27,7 @@ export async function UserBooksList() {
     }
   } catch (e) {
     console.error("Error fetching user books:", e);
-    error = "Failed to load your books";
+    error = e instanceof Error ? e.message : "Failed to load your books";
   }
 
   if (error) {

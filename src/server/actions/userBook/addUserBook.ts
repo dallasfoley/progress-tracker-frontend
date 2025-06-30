@@ -2,6 +2,7 @@
 
 import { UserBook, UserBookSchema } from "@/schema/UserBookSchema";
 import { revalidateTag } from "next/cache";
+import { cookies } from "next/headers";
 
 export async function addUserBook(userBook: UserBook) {
   const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:7000/api";
@@ -13,13 +14,15 @@ export async function addUserBook(userBook: UserBook) {
   }
 
   try {
+    const accessToken = (await cookies()).get("accessToken")?.value;
     const response = await fetch(
       `${API_BASE_URL}/user_books/${userBook.userId}/${userBook.bookId}`,
       {
         method: "POST",
         headers: {
-          Accept: "application/json",
           "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         credentials: "include",
         body: JSON.stringify(data),

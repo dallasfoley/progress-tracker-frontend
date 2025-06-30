@@ -31,23 +31,28 @@ export async function register(formData: {
       credentials: "include",
     });
 
-    console.log("Response status:", response.status);
     if (response.ok) {
       const [res, cookieStore] = await Promise.all([
         response.json(),
         cookies(),
       ]);
-      cookieStore.set("user-session", JSON.stringify(res.data), {
+      cookieStore.set("user", res.data, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 60 * 60, // 1 hour
       });
-      cookieStore.set("access-token", JSON.stringify(res.accessToken), {
+      cookieStore.set("accessToken", res.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 60 * 60,
+        maxAge: 60 * 60, // 1 hour
+      });
+      cookieStore.set("refreshToken", res.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60, // 1 hour
       });
       return { success: true, message: res.message, data: res.data };
     } else {

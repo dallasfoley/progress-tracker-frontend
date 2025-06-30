@@ -1,4 +1,4 @@
-import BrowseBooksList from "@/components/browse/browse-books-list";
+import BrowseBooksWrapper from "@/components/browse/browse-books-wrapper";
 import { Suspense } from "react";
 
 export const experimental_ppr = true;
@@ -11,7 +11,7 @@ export default async function BrowsePage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(255,255,255,0.05),transparent_50%)]" />
       </div>
       <Suspense fallback={<div>Loading...</div>}>
-        <BrowseBooksList />
+        <BrowseBooksWrapper />
       </Suspense>
     </main>
   );

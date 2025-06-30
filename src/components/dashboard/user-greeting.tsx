@@ -7,7 +7,7 @@ export async function UserGreeting() {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/");
   }
 
   return (

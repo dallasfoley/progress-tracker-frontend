@@ -1,44 +1,73 @@
-import { UserBookDetails } from "@/schema/UserBookSchema";
+// src/server/actions/userBook/getUserBooks.ts
+"use server";
 
-const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:7000/api";
+import { getAccessToken, getRefreshToken } from "@/lib/auth";
+import { fetchWithAuthRetry } from "@/lib/fetchWithAuthRetry";
+import { cookies } from "next/headers";
 
-export async function getUserBooks(userId: number): Promise<{
-  success: boolean;
-  message: string;
-  data: UserBookDetails[] | null;
-}> {
+export async function getUserBooks(userId: number) {
+  const targetUrl = `${process.env.API_BASE_URL}/user_books/${userId}`;
+
   try {
-    const response = await fetch(`${API_BASE_URL}/user_books/${userId}`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+    const accessToken = await getAccessToken();
+    const refreshToken = await getRefreshToken();
+    console.log("Access Token getUserBooks:", accessToken);
+    console.log("Refresh Token getUserBooks:", refreshToken);
+    console.log("🔄 Calling fetchWithAuthRetry");
+    let { response, newAccessToken } = await fetchWithAuthRetry(
+      targetUrl,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+        cache: "force-cache",
+        next: {
+          tags: ["user-books"],
+        },
       },
-      credentials: "include",
-      next: { tags: ["user-books"] },
-    });
+      refreshToken ?? undefined
+    );
+
+    console.log("🔄 Parsing response JSON");
 
     const res = await response.json();
 
     if (!response.ok) {
-      return {
+      console.log("❌ Response not ok");
+      const errorResult = {
         success: false,
-        message: res.message || `Server error: ${response.status}`,
+        message: res.message || res.error || "Request failed",
         data: null,
       };
+
+      return errorResult;
     }
 
-    return {
-      success: res.success ?? true,
-      message: res.message || "Got books!",
+    console.log("✅ Request successful");
+    const successResult = {
+      success: true,
+      message: res.message,
       data: res.data,
     };
+
+    console.log("✅ getUserBooks completed successfully");
+
+    return successResult;
   } catch (error) {
-    return {
+    console.log("💥 ERROR in getUserBooks:", error);
+
+    const errorResult = {
       success: false,
-      message:
-        error instanceof Error ? error.message : "An unknown error occurred",
+      message: "An unexpected error occurred",
       data: null,
     };
+
+    console.log("❌ Returning error result");
+
+    return errorResult;
   }
 }

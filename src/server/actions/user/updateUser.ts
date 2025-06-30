@@ -13,13 +13,15 @@ export async function updateUser(user: Register, id: number) {
   }
   const cookieStore = await cookies();
   try {
+    const accessToken = cookieStore.get("accessToken")?.value;
     const { username, email, password } = data;
     const userData = { id, username, email, password };
     const response = await fetch(`${API_BASE_URL}/users`, {
       method: "PUT",
       headers: {
-        Accept: "application/json",
         "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
       },
       credentials: "include",
       body: JSON.stringify(userData),

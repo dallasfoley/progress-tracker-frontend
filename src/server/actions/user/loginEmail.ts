@@ -25,6 +25,7 @@ export async function loginEmail(formData: {
       headers: {
         Accept: "application/json",
       },
+      credentials: "include",
       body: form,
     });
 
@@ -33,17 +34,23 @@ export async function loginEmail(formData: {
         response.json(),
         cookies(),
       ]);
-      cookieStore.set("user-session", JSON.stringify(result.data), {
+      cookieStore.set("user", result.data, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 60 * 60,
       });
-      cookieStore.set("access-token", JSON.stringify(result.accessToken), {
+      cookieStore.set("accessToken", result.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 60 * 60,
+        maxAge: 60 * 60, // 1 hour
+      });
+      cookieStore.set("refreshToken", result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60, // 1 hour
       });
       return {
         success: true,
