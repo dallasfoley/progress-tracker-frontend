@@ -197,7 +197,7 @@ export default function UpdateUserBookForm({
                         max={userBook.pageCount}
                         {...field}
                         onChange={(e) => {
-                          let raw = e.target.value;
+                          const raw = e.target.value;
 
                           // Allow empty string (so user can clear input)
                           if (raw === "") {

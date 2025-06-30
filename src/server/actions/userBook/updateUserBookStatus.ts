@@ -4,7 +4,6 @@ import { UserBookDetails } from "@/schema/UserBookSchema";
 import { API_BASE_URL } from "../book/getAllBooks";
 import { cookies } from "next/headers";
 import { revalidateTag } from "next/cache";
-import { fetchWithAuthRetry } from "@/lib/fetchWithAuthRetry";
 
 export async function updateUserBookStatus(
   userbook: UserBookDetails,

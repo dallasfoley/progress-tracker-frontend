@@ -1,18 +1,7 @@
-import { BookDetails } from "@/schema/BookSchema";
 import { Link } from "lucide-react";
-import Search from "./search";
-import AddUserBookButton from "../buttons/add-userbook-button";
 import { Button } from "../ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardDescription,
-} from "../ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { getAllBooks } from "@/server/actions/book/getAllBooks";
-import Image from "next/image";
 import BrowseBooksList from "./browse-books-list";
 
 export const experimental_ppr = false;

@@ -3,7 +3,6 @@
 
 import { getAccessToken, getRefreshToken } from "@/lib/auth";
 import { fetchWithAuthRetry } from "@/lib/fetchWithAuthRetry";
-import { cookies } from "next/headers";
 
 export async function getUserBooks(userId: number) {
   const targetUrl = `${process.env.API_BASE_URL}/user_books/${userId}`;
@@ -13,8 +12,7 @@ export async function getUserBooks(userId: number) {
     const refreshToken = await getRefreshToken();
     console.log("Access Token getUserBooks:", accessToken);
     console.log("Refresh Token getUserBooks:", refreshToken);
-    console.log("🔄 Calling fetchWithAuthRetry");
-    let { response, newAccessToken } = await fetchWithAuthRetry(
+    const { response } = await fetchWithAuthRetry(
       targetUrl,
       {
         method: "GET",
@@ -32,12 +30,9 @@ export async function getUserBooks(userId: number) {
       refreshToken ?? undefined
     );
 
-    console.log("🔄 Parsing response JSON");
-
     const res = await response.json();
 
     if (!response.ok) {
-      console.log("❌ Response not ok");
       const errorResult = {
         success: false,
         message: res.message || res.error || "Request failed",
@@ -47,26 +42,20 @@ export async function getUserBooks(userId: number) {
       return errorResult;
     }
 
-    console.log("✅ Request successful");
     const successResult = {
       success: true,
       message: res.message,
       data: res.data,
     };
 
-    console.log("✅ getUserBooks completed successfully");
-
     return successResult;
   } catch (error) {
-    console.log("💥 ERROR in getUserBooks:", error);
-
     const errorResult = {
       success: false,
-      message: "An unexpected error occurred",
+      message:
+        error instanceof Error ? error.message : "An unexpected error occurred",
       data: null,
     };
-
-    console.log("❌ Returning error result");
 
     return errorResult;
   }

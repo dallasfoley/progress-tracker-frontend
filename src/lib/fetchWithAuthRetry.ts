@@ -1,5 +1,3 @@
-import { cookies } from "next/headers";
-
 export async function fetchWithAuthRetry(
   input: RequestInfo,
   init?: RequestInit,
@@ -11,7 +9,7 @@ export async function fetchWithAuthRetry(
         ? ""
         : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-    console.log(`🌐 Proxying request to: ${baseUrl}/api/authProxy`);
+    console.log(`Proxying request to: ${baseUrl}/api/authProxy`);
 
     const proxyResponse = await fetch(`${baseUrl}/api/authProxy`, {
       method: "POST",
@@ -25,18 +23,7 @@ export async function fetchWithAuthRetry(
       }),
     });
 
-    const contentType = proxyResponse.headers.get("content-type") || "";
-    const isJSON = contentType.includes("application/json");
-
-    let result: any = {};
-    try {
-      result = isJSON
-        ? await proxyResponse.json()
-        : { error: await proxyResponse.text() };
-    } catch (parseError) {
-      console.error("❌ Failed to parse proxy response:", parseError);
-      result = { error: "Failed to parse response" };
-    }
+    const result = await proxyResponse.json();
 
     // If the proxy returned an error
     if (!proxyResponse.ok) {
@@ -59,7 +46,7 @@ export async function fetchWithAuthRetry(
       newAccessToken: result.newAccessToken || "",
     };
   } catch (err) {
-    console.error("🔥 Unexpected error in fetchWithAuthRetry:", err);
+    console.error("Unexpected error in fetchWithAuthRetry:", err);
 
     return {
       response: new Response(

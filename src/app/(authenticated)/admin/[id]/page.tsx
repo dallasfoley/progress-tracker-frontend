@@ -16,6 +16,7 @@ export default async function AdminPage({
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
+        Authorization: `Bearer ${(await cookies()).get("accessToken")?.value}`,
       },
       credentials: "include",
       cache: "force-cache",
