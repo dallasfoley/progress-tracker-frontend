@@ -1,4 +1,4 @@
-import UserBook from "@/components/userbook";
+import UserBook from "./userbook";
 import { getCurrentUser } from "@/lib/auth";
 import { getUserBooks } from "@/server/actions/userBook/getUserBooks";
 import { redirect } from "next/navigation";
