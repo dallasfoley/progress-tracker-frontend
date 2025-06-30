@@ -65,7 +65,7 @@ export default function UpdateUserBookForm({
         } else if (newStatus === "NOT_STARTED") {
           await updateUserBookPage(userBook, 0);
         }
-        form.setValue("status", newStatus as any);
+        form.setValue("status", newStatus as UserBookDetails["status"]);
         router.refresh();
         toast.success("Status updated successfully!");
       } catch (error) {
@@ -83,22 +83,21 @@ export default function UpdateUserBookForm({
     startTransition(async () => {
       try {
         const { status, currentPage, userRating } = formData;
-        // Update current page if it changed
-        if (currentPage !== userBook.currentPage) {
-          await updateUserBookPage(userBook, currentPage);
-          if (currentPage === userBook.pageCount) {
-            await updateUserBookStatus(userBook, "COMPLETED");
-          }
+        let finalStatus = status;
+        if (currentPage === userBook.pageCount) {
+          finalStatus = "COMPLETED";
+        } else if (currentPage === 0) {
+          finalStatus = "NOT_STARTED";
+        } else {
+          finalStatus = "IN_PROGRESS";
         }
 
-        // Update status if it changed
-        if (status !== userBook.status) {
-          await updateUserBookStatus(userBook, status);
-          if (status === "COMPLETED") {
-            await updateUserBookPage(userBook, userBook.pageCount);
-          } else if (status === "NOT_STARTED") {
-            await updateUserBookPage(userBook, 0);
-          }
+        if (currentPage !== userBook.currentPage) {
+          await updateUserBookPage(userBook, currentPage);
+        }
+
+        if (finalStatus !== userBook.status) {
+          await updateUserBookStatus(userBook, finalStatus);
         }
 
         if (userRating !== userBook.userRating) {
@@ -197,8 +196,32 @@ export default function UpdateUserBookForm({
                         min={0}
                         max={userBook.pageCount}
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(Number.parseInt(e.target.value) || 0)
+                        onChange={(e) => {
+                          const raw = e.target.value;
+
+                          // Allow empty string (so user can clear input)
+                          if (raw === "") {
+                            field.onChange(0); // or 0 if you prefer
+                            return;
+                          }
+
+                          // Remove leading zeros except if the input is just "0"
+                          const sanitized = raw.replace(/^0+(?=\d)/, "");
+
+                          // Update form with parsed number
+                          const parsed = Number.parseInt(sanitized);
+
+                          // If parsed is NaN (like user types "-"), fallback to 0 or ignore
+                          if (isNaN(parsed)) {
+                            field.onChange(0);
+                          } else {
+                            field.onChange(parsed);
+                          }
+                        }}
+                        value={
+                          field.value === undefined || field.value === null
+                            ? ""
+                            : field.value.toString()
                         }
                         disabled={isPending}
                       />

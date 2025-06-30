@@ -1,5 +1,17 @@
 import { z } from "zod";
 
+export const AddBookSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  author: z.string().min(1, "Author is required"),
+  coverUrl: z.string().url(),
+  description: z.string(),
+  yearPublished: z.number().int(),
+  genre: z.string(),
+  pageCount: z.number().int().min(1, "Page count must be at least 1"),
+});
+
+export type AddBook = z.infer<typeof AddBookSchema>;
+
 export const BookSchema = z.object({
   id: z.number().int().min(1),
   title: z.string().min(1, "Title is required"),
@@ -13,3 +25,10 @@ export const BookSchema = z.object({
 });
 
 export type Book = z.infer<typeof BookSchema>;
+
+export const BookDetailsSchema = BookSchema.extend({
+  inProgressCount: z.number().int().min(0),
+  completedCount: z.number().int().min(0),
+});
+
+export type BookDetails = z.infer<typeof BookDetailsSchema>;

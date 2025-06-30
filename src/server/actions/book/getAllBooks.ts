@@ -1,26 +1,46 @@
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:7000/api";
+import { fetchWithAuthRetry } from "@/lib/fetchWithAuthRetry";
+import { BookDetails } from "@/schema/BookSchema";
+import { cookies } from "next/headers";
 
-export async function getAllBooks() {
+export const API_BASE_URL =
+  process.env.API_BASE_URL || "http://localhost:7000/api";
+
+export async function getAllBooks(): Promise<{
+  success: boolean;
+  message: string;
+  data: BookDetails[] | null;
+}> {
   try {
-    const response = await fetch(`${API_BASE_URL}/books`, {
+    const accessToken = (await cookies()).get("accessToken")?.value;
+    const { response } = await fetchWithAuthRetry(`${API_BASE_URL}/books`, {
       method: "GET",
       headers: {
+        "Content-Type": "application/json",
         Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
       },
+      credentials: "include",
+      cache: "force-cache",
     });
 
     if (!response.ok) {
-      console.error(
-        `Bad response (${response.status}):`,
-        await response.text()
-      );
-      throw new Error(`Error fetching user books: ${response.statusText}`);
+      const res = await response.json();
+      console.error(`Bad response (${response.status})`);
+      return {
+        success: false,
+        message: res.message || res.error || "Request failed",
+        data: null,
+      };
+    } else {
+      const data = await response.json();
+      return {
+        success: true,
+        message: "Books fetched successfully",
+        data: data,
+      };
     }
-
-    const data = await response.json();
-    return data;
   } catch (e) {
+    console.error("Network error during signup:", e);
     throw e;
   }
 }

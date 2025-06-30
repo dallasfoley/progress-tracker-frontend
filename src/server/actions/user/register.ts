@@ -3,8 +3,7 @@
 import { RegisterSchema } from "@/schema/UserSchema";
 import { cookies } from "next/headers";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:7000/api";
+const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:7000/api";
 
 export async function register(formData: {
   username: string;
@@ -32,40 +31,41 @@ export async function register(formData: {
       credentials: "include",
     });
 
-    console.log("Response status:", response.status);
-    const res = await response.json();
-    if (!response.ok) {
+    if (response.ok) {
+      const [res, cookieStore] = await Promise.all([
+        response.json(),
+        cookies(),
+      ]);
+      cookieStore.set("user", res.data, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60, // 1 hour
+      });
+      cookieStore.set("accessToken", res.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60, // 1 hour
+      });
+      cookieStore.set("refreshToken", res.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60, // 1 hour
+      });
+      return { success: true, message: res.message, data: res.data };
+    } else {
+      const res = await response.json();
       return {
         success: false,
-        message: res.message || `Server error: ${response.status}`,
+        message:
+          res.message ||
+          `Server error: ${response.status}` ||
+          "Network error during signup",
+        data: null,
       };
     }
-
-    if (res.accessToken) {
-      (await cookies()).set({
-        name: "accessToken",
-        value: res.accessToken,
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60, // 1 hour
-      });
-      (await cookies()).set({
-        name: "user-session",
-        value: res.data,
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60, // 1 hour
-      });
-    }
-
-    return {
-      success: res.success ?? true,
-      message: res.message || "User registered successfully! Please login now",
-      data: res.data,
-      accessToken: res.accessToken,
-    };
   } catch (error) {
     console.error("Network error during signup:", error);
     return {

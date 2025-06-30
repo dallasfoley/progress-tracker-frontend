@@ -3,8 +3,7 @@
 import { LoginEmailSchema } from "@/schema/UserSchema";
 import { cookies } from "next/headers";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:7000/api";
+const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:7000/api";
 
 export async function loginEmail(formData: {
   email: string;
@@ -26,28 +25,52 @@ export async function loginEmail(formData: {
       headers: {
         Accept: "application/json",
       },
+      credentials: "include",
       body: form,
     });
 
     if (response.ok) {
+      const [result, cookieStore] = await Promise.all([
+        response.json(),
+        cookies(),
+      ]);
+      cookieStore.set("user", result.data, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60,
+      });
+      cookieStore.set("accessToken", result.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60, // 1 hour
+      });
+      cookieStore.set("refreshToken", result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60, // 1 hour
+      });
+      return {
+        success: true,
+        message: "Login successful",
+        data: result.data,
+      };
+    } else {
       const result = await response.json();
-      const cookieStore = await cookies();
-      cookieStore.set("user-session", JSON.stringify(result.data), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60,
-      });
-      cookieStore.set("access-token", JSON.stringify(result.accessToken), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60,
-      });
+      return {
+        success: false,
+        message: result.message || "Login failed",
+        data: null,
+      };
     }
-    return await response.json();
   } catch (error) {
-    console.error("Network error during signup:", error);
-    throw error;
+    console.error("Error logging in:", error);
+    return {
+      success: false,
+      message: "Login failed",
+      data: null,
+    };
   }
 }

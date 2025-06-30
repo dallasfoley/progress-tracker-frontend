@@ -1,44 +1,18 @@
-import AddUserBookButton from "@/components/buttons/add-userbook-button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { getCurrentUser } from "@/lib/auth";
-import { Book } from "@/schema/BookSchema";
-import { getAllBooks } from "@/server/actions/book/getAllBooks";
-import Image from "next/image";
+import BrowseBooksWrapper from "@/components/browse/browse-books-wrapper";
+import { Suspense } from "react";
+
+export const experimental_ppr = true;
 
 export default async function BrowsePage() {
-  const [user, books] = await Promise.all([getCurrentUser(), getAllBooks()]);
-
   return (
-    <main>
-      <h1>Search</h1>
-      <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {books.map((book: Book, key: number) => (
-          <Card key={key}>
-            <CardHeader>
-              <CardTitle>
-                {book.title} by {book.author}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Image
-                src={book.coverUrl}
-                alt={book.title}
-                height={200}
-                width={200}
-                className="w-full h-auto object-cover"
-              />
-            </CardContent>
-            <CardDescription>{book.description}</CardDescription>
-            {user && <AddUserBookButton book={book} user={user} />}
-          </Card>
-        ))}
-      </ul>
+    <main className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-slate-900 px-4 py-8">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(120,119,198,0.15),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(255,255,255,0.05),transparent_50%)]" />
+      </div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <BrowseBooksWrapper />
+      </Suspense>
     </main>
   );
 }

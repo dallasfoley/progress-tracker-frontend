@@ -1,11 +1,9 @@
 "use server";
 
-import { LoginUsernameSchema, User } from "@/schema/UserSchema";
-import { handleResponse } from "@/lib/handleResponse";
+import { LoginUsernameSchema } from "@/schema/UserSchema";
 import { cookies } from "next/headers";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:7000/api";
+const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:7000/api";
 
 export async function loginUsername(formData: {
   username: string;
@@ -27,36 +25,52 @@ export async function loginUsername(formData: {
       headers: {
         Accept: "application/json",
       },
+      credentials: "include",
       body: form,
     });
 
-    if (response.ok) {
-      const result = await response.json();
-      const cookieStore = await cookies();
-      cookieStore.set("user-session", JSON.stringify(result.data), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60,
-      });
-      cookieStore.set("access-token", JSON.stringify(result.accessToken), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60,
-      });
-      return {
-        success: true,
-        data: result,
-        message: "Login successful",
-      };
-    } else {
+    console.log("Response status:", response.status);
+
+    if (!response.ok) {
       return {
         success: false,
-        data: null,
         message: "Login failed",
       };
     }
+
+    const result = await response.json();
+
+    console.log("Login successful:", result);
+
+    // ✅ This is correct for server actions (or any "use server" function)
+    const cookieStore = await cookies();
+    cookieStore.set("user", JSON.stringify(result.data), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60,
+      path: "/",
+    });
+    cookieStore.set("accessToken", result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60,
+      path: "/",
+    });
+    cookieStore.set("refreshToken", result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60,
+      path: "/",
+    });
+
+    return {
+      success: true,
+      data: result.data,
+      message: "Login successful",
+    };
   } catch (error) {
     console.error("Network error during signup:", error);
     throw error;

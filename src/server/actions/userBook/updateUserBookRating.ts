@@ -3,22 +3,24 @@
 import { UserBookDetails } from "@/schema/UserBookSchema";
 import { API_BASE_URL } from "../book/getAllBooks";
 import { cookies } from "next/headers";
+import { revalidateTag } from "next/cache";
 
 export async function updateUserBookRating(
   userbook: UserBookDetails,
   rating: number
 ) {
   try {
-    const accessToken = (await cookies()).get("access-token")?.value || "";
+    const accessToken = (await cookies()).get("accessToken")?.value;
     const response = await fetch(
       `${API_BASE_URL}/user_books/rating/${userbook.userId}/${userbook.bookId}`,
       {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
           Accept: "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
+        credentials: "include",
         body: JSON.stringify({ rating }),
       }
     );
@@ -30,7 +32,7 @@ export async function updateUserBookRating(
         message: res.message || `Server error: ${response.status}`,
       };
     }
-
+    revalidateTag("user-books");
     return {
       success: res.success ?? true,
       message: res.message || "Book updated successfully!",

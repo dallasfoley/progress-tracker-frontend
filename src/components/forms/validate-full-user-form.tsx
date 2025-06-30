@@ -15,10 +15,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import { deleteUser } from "@/server/actions/user/deleteUser";
 import { toast } from "sonner";
-
 import { useRouter } from "next/navigation";
 
-export default function ValidateFullUserForm({ id }: { id: number }) {
+export default function ValidateFullUserForm({
+  id,
+  toDelete,
+}: {
+  id: number;
+  toDelete: boolean;
+}) {
   const router = useRouter();
   const form = useForm<Register>({
     resolver: zodResolver(RegisterSchema),
@@ -31,11 +36,14 @@ export default function ValidateFullUserForm({ id }: { id: number }) {
 
   const onSubmit = async () => {
     try {
-      const res = await deleteUser(id);
-      if (res) {
-        toast.success("User deleted successfully!");
-        router.refresh();
-        router.push("/");
+      if (toDelete) {
+        const res = await deleteUser(id);
+        if (res?.success) {
+          toast.success("Success!");
+          router.push("/");
+        }
+      } else {
+        router.push("/update");
       }
     } catch (e) {
       console.error("Error during deletion:", e);
@@ -44,11 +52,14 @@ export default function ValidateFullUserForm({ id }: { id: number }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FormLabel className="text-xl font-semibold ">
+          Validate Credentials
+        </FormLabel>
         <FormField
           control={form.control}
           name="username"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="my-4">
               <FormLabel>Username</FormLabel>
               <FormControl>
                 <Input placeholder="Username" {...field} />
@@ -61,7 +72,7 @@ export default function ValidateFullUserForm({ id }: { id: number }) {
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="my-4">
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input placeholder="Email" {...field} />
@@ -74,7 +85,7 @@ export default function ValidateFullUserForm({ id }: { id: number }) {
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="my-4">
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <Input placeholder="Password" {...field} />
@@ -83,7 +94,9 @@ export default function ValidateFullUserForm({ id }: { id: number }) {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" className="w-full">
+          {toDelete ? "Validate and Delete User" : "Update User"}
+        </Button>
       </form>
     </Form>
   );

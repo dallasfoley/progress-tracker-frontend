@@ -19,7 +19,7 @@ export default function LogoutButton() {
   return (
     <Button
       onClick={handleClick}
-      className="text-lg my-3 w-48 bg-zinc-300 text-zinc-800 hover:bg-zinc-400"
+      className="text-lg my-3 px-4 bg-zinc-300 text-zinc-800 hover:bg-zinc-400"
     >
       <IoLogOutOutline />
     </Button>

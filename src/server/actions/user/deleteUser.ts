@@ -6,7 +6,7 @@ import { logout } from "./logout";
 
 export async function deleteUser(id: number) {
   try {
-    const accessToken = (await cookies()).get("access-token")?.value || "";
+    const accessToken = (await cookies()).get("accessToken")?.value;
     console.log("url: ", `${API_BASE_URL}/users/${id}`);
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: "DELETE",
@@ -15,12 +15,14 @@ export async function deleteUser(id: number) {
         Accept: "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
+      credentials: "include",
     });
     if (response.ok) {
       await logout();
+      return { success: true, message: "User deleted successfully!" };
     }
   } catch (error) {
     console.error("Network error during signup:", error);
-    throw error;
+    return { success: false, message: "Failed to delete user." };
   }
 }

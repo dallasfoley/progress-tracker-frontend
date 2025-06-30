@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -5,29 +6,20 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
-import UserBook from "@/components/UserBook";
-import { getCurrentUser } from "@/lib/auth";
-import { UserBookDetails } from "@/schema/UserBookSchema";
-import { getUserBooks } from "@/server/actions/userBook/getUserBooks";
-import Link from "next/link";
-import { redirect } from "next/navigation";
+import { UserGreeting } from "@/components/dashboard/user-greeting";
+import { UserBooksList } from "@/components/dashboard/user-books-list";
 import { CiSearch } from "react-icons/ci";
+import Link from "next/link";
 
-export default async function DashboardPage() {
-  const user = await getCurrentUser();
+export const experimental_ppr = true;
 
-  if (!user) {
-    console.log(user);
-    redirect("/");
-  }
-  const { success, message, data } = await getUserBooks(user.id);
-
+export default function DashboardPage() {
   return (
-    <main className="container mx-auto py-8">
+    <main className="container flex flex-col items-center mx-auto py-8">
       <div className="mb-8">
-        <h1 className="text-3xl text-center font-bold text-zinc-200">
-          Welcome back, {user.username}!
-        </h1>
+        <Suspense fallback={<UserGreetingSkeleton />}>
+          <UserGreeting />
+        </Suspense>
       </div>
       <Card className="p-2 md:p-4 max-w-sm mx-auto md:max-w-2xl lg:max-w-4xl xl:max-w-6xl">
         <CardHeader>
@@ -40,7 +32,6 @@ export default async function DashboardPage() {
           progress.
         </CardDescription>
         <div className="flex justify-center">
-          {!success && <p className="text-red-500">{message}</p>}
           <Button className="max-w-48" asChild>
             <Link href="/browse">
               <h4>Browse Books</h4>
@@ -48,22 +39,34 @@ export default async function DashboardPage() {
             </Link>
           </Button>
         </div>
+
         <CardContent>
-          {data && data?.length > 0 ? (
-            <ul className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3">
-              {data.map((book: UserBookDetails, key: number) => (
-                <li key={key} className="text-zinc-200">
-                  <UserBook userBook={book} />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-zinc-400 text-center">
-              You have no books in your reading list.
-            </p>
-          )}
+          <Suspense fallback={<UserBooksListSkeleton />}>
+            <UserBooksList />
+          </Suspense>
         </CardContent>
       </Card>
     </main>
+  );
+}
+
+// Skeleton components for loading states
+function UserGreetingSkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="h-9 bg-zinc-700 rounded w-64 mx-auto"></div>
+    </div>
+  );
+}
+
+function UserBooksListSkeleton() {
+  return (
+    <div className="animate-pulse">
+      <ul className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <li key={i} className="h-48 bg-zinc-700 rounded"></li>
+        ))}
+      </ul>
+    </div>
   );
 }
