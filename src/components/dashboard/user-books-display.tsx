@@ -30,7 +30,7 @@ export function UserBooksDisplay({
         </div>
       )}
       <ul className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3">
-        {userBooks.map((book: any, index: number) => (
+        {userBooks.map((book: UserBookDetails, index: number) => (
           <li key={book.bookId || index} className="text-zinc-200">
             <UserBook userBook={book} />
           </li>

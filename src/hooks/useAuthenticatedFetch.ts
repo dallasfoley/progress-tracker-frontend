@@ -90,7 +90,7 @@ export function useAuthenticatedFetch<T>({
     if (autoFetch) {
       fetchData();
     }
-  }, dependencies);
+  }, [autoFetch, fetchData, ...dependencies]);
 
   return {
     data,

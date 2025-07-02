@@ -7,7 +7,6 @@ import {
   useState,
   useTransition,
   useCallback,
-  Ref,
 } from "react";
 import { useRouter } from "next/navigation";
 import { refreshAndRetry } from "@/server/actions/auth/refreshAndRetry";

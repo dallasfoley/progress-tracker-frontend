@@ -33,7 +33,6 @@ export function UserBooksClientWrapper({
         tags: ["user-books"],
       },
     },
-    dependencies: [userId],
   });
 
   if (isLoading && !hasInitialized) {
