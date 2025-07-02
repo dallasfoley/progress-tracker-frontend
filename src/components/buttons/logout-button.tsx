@@ -4,6 +4,7 @@ import { logout } from "@/server/actions/auth/logout";
 import { Button } from "../ui/button";
 import { IoLogOutOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function LogoutButton() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function LogoutButton() {
       router.push("/");
     } catch (error) {
       // console.error("Error logging out:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to log out");
     }
   };
   return (

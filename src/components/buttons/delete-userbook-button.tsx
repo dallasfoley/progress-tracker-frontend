@@ -18,7 +18,9 @@ export default function DeleteUserBookButton({
       toast.success("Book deleted successfully!");
     } catch (error) {
       // console.error("Error deleting user book:", error);
-      toast.error("Failed to delete book.");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete book"
+      );
     }
   };
 
