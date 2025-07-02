@@ -14,7 +14,7 @@ export default function DeleteBookButton({ id }: { id: number }) {
       router.push("/dashboard");
       toast.success("Book deleted successfully!");
     } catch (error) {
-      console.error("Error deleting book:", error);
+      // console.error("Error deleting book:", error);
       toast.error("Failed to delete book." + error);
     }
   };

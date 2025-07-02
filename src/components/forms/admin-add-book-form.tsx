@@ -41,7 +41,7 @@ export default function AdminAddBookForm() {
       router.push(`/admin/browse`);
     } else {
       toast.error("Failed to add book");
-      console.error(newBook.message);
+      // console.error(newBook.message);
     }
   };
   return (

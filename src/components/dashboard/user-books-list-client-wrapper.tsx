@@ -21,7 +21,7 @@ export function UserBooksClientWrapper({
     hasInitialized,
   } = useAuthenticatedFetch({
     fetchAction: () => getUserBooks(userId),
-    requestUrl: `${process.env.API_BASE_URL}/user_books/${userId}`,
+    requestUrl: `${process.env.NEXT_PUBLIC_API_BASE_URL}/user_books/${userId}`,
     requestOptions: {
       method: "GET",
       headers: {

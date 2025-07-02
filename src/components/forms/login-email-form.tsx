@@ -46,7 +46,7 @@ export function LoginEmailForm({
         toast.error(errorMessage);
       }
     } catch (e) {
-      console.error("Error during login:", e);
+      // console.error("Error during login:", e);
       toast.error(e instanceof Error && e.message);
     }
   };

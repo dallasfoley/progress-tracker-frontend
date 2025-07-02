@@ -13,7 +13,7 @@ export default function LogoutButton() {
       await logout();
       router.push("/");
     } catch (error) {
-      console.error("Error logging out:", error);
+      // console.error("Error logging out:", error);
     }
   };
   return (

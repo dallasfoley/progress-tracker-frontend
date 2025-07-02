@@ -12,7 +12,7 @@ export default async function UserSettingsButtons() {
       redirect("/");
     }
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     redirect("/");
   }
   return (

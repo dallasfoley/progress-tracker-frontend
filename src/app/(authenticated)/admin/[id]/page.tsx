@@ -11,16 +11,21 @@ export default async function AdminPage({
   try {
     const { id } = await params;
 
-    const response = await fetch(`${process.env.API_BASE_URL}/books/${id}`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${(await cookies()).get("accessToken")?.value}`,
-      },
-      credentials: "include",
-      cache: "force-cache",
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/books/${id}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${
+            (await cookies()).get("accessToken")?.value
+          }`,
+        },
+        credentials: "include",
+        cache: "force-cache",
+      }
+    );
     if (!response.ok) {
       return (
         <div>

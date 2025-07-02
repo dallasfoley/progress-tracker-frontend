@@ -23,7 +23,6 @@ export default function BrowseBooksList({
   user: User;
 }) {
   const [bookList, setBookList] = useState<BookDetails[]>(books);
-  console.log(bookList.forEach((book) => console.log(book.genre)));
   return (
     <>
       <div className="mb-12 text-center">

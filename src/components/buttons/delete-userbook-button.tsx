@@ -17,7 +17,7 @@ export default function DeleteUserBookButton({
       router.refresh();
       toast.success("Book deleted successfully!");
     } catch (error) {
-      console.error("Error deleting user book:", error);
+      // console.error("Error deleting user book:", error);
       toast.error("Failed to delete book.");
     }
   };

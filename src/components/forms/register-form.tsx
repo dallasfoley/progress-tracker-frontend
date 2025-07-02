@@ -43,7 +43,7 @@ export function RegisterForm({
   }) => {
     try {
       const res = await register(formData);
-      console.log(res);
+      // console.log(res);
       if (res?.success) {
         console.log(res);
         toast.success("Registration successful! Redirecting to dashboard...");
@@ -53,7 +53,7 @@ export function RegisterForm({
         toast.error(res?.message);
       }
     } catch (e) {
-      console.error("Error during registration:", e);
+      // console.error("Error during registration:", e);
       setError(
         e instanceof Error ? e.message : "An error occurred during login."
       );

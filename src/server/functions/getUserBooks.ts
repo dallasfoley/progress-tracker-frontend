@@ -1,16 +1,13 @@
 // src/server/functions/userBook/getUserBooks.ts
 "use server";
 
-import { getAccessToken, getRefreshToken } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 
 export async function getUserBooks(userId: number) {
   const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/user_books/${userId}`;
 
   try {
     const accessToken = await getAccessToken();
-    const refreshToken = await getRefreshToken();
-    console.log("Access Token getUserBooks:", accessToken);
-    console.log("Refresh Token getUserBooks:", refreshToken);
     const options: RequestInit = {
       method: "GET",
       headers: {
@@ -35,7 +32,6 @@ export async function getUserBooks(userId: number) {
     }
 
     const res = await response.json();
-    console.log("Response data getUserBooks:", res);
     if (!response.ok) {
       const errorResult = {
         success: false,

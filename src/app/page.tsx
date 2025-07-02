@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { MdMenuBook } from "react-icons/md";
 
 export default async function Home() {
   return (
@@ -26,22 +27,8 @@ export default async function Home() {
           <div className="my-8 flex justify-center">
             <div className="relative">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center transform rotate-12 shadow-lg">
-                <svg
-                  className="w-8 h-8 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <MdMenuBook className="w-8 h-8 text-white" />
               </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-bounce" />
             </div>
           </div>
 
@@ -66,7 +53,7 @@ export default async function Home() {
         </div>
 
         {/* Feature Highlights */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-3xl mx-auto">
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-3xl mx-auto">
           <div className="bg-zinc-800/30 backdrop-blur-sm border border-zinc-700/50 rounded-lg p-4 text-center hover:bg-zinc-800/50 transition-all duration-300">
             <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
               <span className="text-blue-400 text-sm">📚</span>
@@ -94,9 +81,9 @@ export default async function Home() {
             <h3 className="text-white font-semibold mb-1">Analytics</h3>
             <p className="text-zinc-400 text-sm">Insights into your habits</p>
           </div>
-        </div>
+        </div> */}
 
-        {/* Call to Action Buttons */}
+        {/* Auth Button Links */}
         <div className="space-y-4 w-full max-w-sm mx-auto">
           <Button
             className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
@@ -138,7 +125,7 @@ export default async function Home() {
         </div>
 
         {/* Trust Indicators */}
-        <div className="mt-12 flex items-center justify-center space-x-8 text-zinc-500 text-sm">
+        <div className="mt-12 flex items-center justify-center space-x-8 mb-4 text-zinc-500 text-sm">
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-green-400 rounded-full"></div>
             <span>Free to use</span>

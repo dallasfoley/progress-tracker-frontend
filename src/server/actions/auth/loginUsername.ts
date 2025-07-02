@@ -41,7 +41,7 @@ export async function loginUsername(formData: {
 
     const result = await response.json();
 
-    console.log("Login successful:", result);
+    // "Login successful:", result);
     const cookieStore = await cookies();
     cookieStore.set("user", JSON.stringify(result.data), {
       httpOnly: true,

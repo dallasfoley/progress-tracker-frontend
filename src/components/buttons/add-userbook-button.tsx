@@ -59,7 +59,7 @@ export default function AddUserBookButton({
         toast.error(errorMessage);
       }
     } catch (e) {
-      console.error("Error during login:", e);
+      // console.error("Error during login:", e);
       setError(
         e instanceof Error ? e.message : "An error occurred during login."
       );

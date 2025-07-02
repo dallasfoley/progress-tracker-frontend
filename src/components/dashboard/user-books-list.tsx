@@ -24,7 +24,7 @@ export async function UserBooksList() {
     }
     userBooks = response.data || [];
   } catch (e) {
-    console.error("Error fetching user books:", e);
+    // console.error("Error fetching user books:", e);
     error = e instanceof Error ? e.message : "Failed to load your books";
     return <p className="text-red-500 text-center">{error}</p>;
   }

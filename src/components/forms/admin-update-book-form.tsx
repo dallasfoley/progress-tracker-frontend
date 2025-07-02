@@ -73,7 +73,7 @@ export function AdminUpdateBookForm({ book }: { book: Book }) {
       router.push(`/browse`);
     } else {
       toast.error("Failed to update book");
-      console.error(updatedBook.message);
+      // console.error(updatedBook.message);
     }
   };
 
