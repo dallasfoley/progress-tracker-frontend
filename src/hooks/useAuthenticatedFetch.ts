@@ -7,7 +7,7 @@ interface UseAuthenticatedFetchOptions<T> {
   fetchAction: () => Promise<T>;
   requestUrl?: string; // URL for refresh and retry
   requestOptions?: RequestInit; // Options for refresh and retry
-  dependencies?: any[];
+  dependencies?: T[];
   autoFetch?: boolean;
 }
 

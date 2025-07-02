@@ -1,9 +1,10 @@
+import { UserBookDetails } from "@/schema/UserBookSchema";
 import UserBook from "../UserBook";
 import { Button } from "../ui/button";
 import Link from "next/link";
 
 interface UserBooksDisplayProps {
-  userBooks: any[];
+  userBooks: UserBookDetails[];
   userRole: string;
 }
 

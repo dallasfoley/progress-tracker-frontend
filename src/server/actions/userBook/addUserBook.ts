@@ -24,7 +24,7 @@ export async function addUserBook(userBook: UserBook) {
         Accept: "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(userBook),
+      body: JSON.stringify(data),
       credentials: "include",
       cache: "no-store", // Ensure we always get the latest data
       next: {

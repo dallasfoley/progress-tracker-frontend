@@ -7,6 +7,7 @@ import {
   useState,
   useTransition,
   useCallback,
+  Ref,
 } from "react";
 import { useRouter } from "next/navigation";
 import { refreshAndRetry } from "@/server/actions/auth/refreshAndRetry";
@@ -21,8 +22,15 @@ interface AuthContextType {
   refreshAndRetryRequest: (url: string, options?: RequestInit) => Promise<any>;
   clearError: () => void;
 
-  // Transition state
+  // Transition state Refre
   isPending: boolean;
+}
+
+interface RefreshAndRetryResult {
+  success: boolean;
+  needsLogin: boolean;
+  error: string | null;
+  data: any | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,7 +46,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const refreshAndRetryRequest = useCallback(
-    async (url: string, options: RequestInit = {}): Promise<any> => {
+    async (
+      url: string,
+      options: RequestInit = {}
+    ): Promise<RefreshAndRetryResult | null> => {
       return new Promise((resolve) => {
         startTransition(async () => {
           try {
