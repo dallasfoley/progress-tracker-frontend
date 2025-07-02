@@ -21,7 +21,7 @@ export default async function BrowseBooksWrapper() {
   if (status === 401 || !books) {
     return (
       <Suspense fallback={<div>Loading...</div>}>
-        <ClientBrowseBooksList userId={user.id} />
+        <ClientBrowseBooksList />
       </Suspense>
     );
   }

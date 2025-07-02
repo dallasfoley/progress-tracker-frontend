@@ -3,13 +3,7 @@
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { getAllBooks } from "@/server/functions/getAllBooks";
 
-interface UserBooksClientWrapperProps {
-  userId: number;
-}
-
-export default function ClientBrowseBooksList({
-  userId,
-}: UserBooksClientWrapperProps) {
+export default function ClientBrowseBooksList() {
   const {
     data: result,
     isLoading,
@@ -30,7 +24,6 @@ export default function ClientBrowseBooksList({
         tags: ["user-books"],
       },
     },
-    dependencies: [userId],
   });
 
   if (isLoading && !hasInitialized) {

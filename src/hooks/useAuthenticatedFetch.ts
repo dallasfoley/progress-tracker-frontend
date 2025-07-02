@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/providers/auth-provider";
 
 interface UseAuthenticatedFetchOptions<T> {
   fetchAction: () => Promise<T>;
   requestUrl?: string; // URL for refresh and retry
   requestOptions?: RequestInit; // Options for refresh and retry
-  dependencies?: T[];
   autoFetch?: boolean;
 }
 
@@ -15,7 +14,6 @@ export function useAuthenticatedFetch<T>({
   fetchAction,
   requestUrl,
   requestOptions = { method: "GET" },
-  dependencies = [],
   autoFetch = true,
 }: UseAuthenticatedFetchOptions<T>) {
   const [data, setData] = useState<T | null>(null);
@@ -23,7 +21,7 @@ export function useAuthenticatedFetch<T>({
   const { refreshAndRetryRequest, isLoading, error, clearError, isPending } =
     useAuth();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     clearError();
 
     try {
@@ -79,8 +77,13 @@ export function useAuthenticatedFetch<T>({
     } finally {
       setHasInitialized(true);
     }
-  };
-
+  }, [
+    fetchAction,
+    requestUrl,
+    requestOptions,
+    refreshAndRetryRequest,
+    clearError,
+  ]);
   const refetch = () => {
     setHasInitialized(false);
     fetchData();
@@ -90,7 +93,7 @@ export function useAuthenticatedFetch<T>({
     if (autoFetch) {
       fetchData();
     }
-  }, [autoFetch, fetchData, ...dependencies]);
+  }, [autoFetch, fetchData]);
 
   return {
     data,

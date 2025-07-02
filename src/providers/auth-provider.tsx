@@ -18,7 +18,10 @@ interface AuthContextType {
 
   // Actions
   executeWithAuth: <T>(action: () => Promise<T>) => Promise<T | null>;
-  refreshAndRetryRequest: (url: string, options?: RequestInit) => Promise<any>;
+  refreshAndRetryRequest: (
+    url: string,
+    options?: RequestInit
+  ) => Promise<RefreshAndRetryResult | null>;
   clearError: () => void;
 
   // Transition state Refre
@@ -29,7 +32,7 @@ interface RefreshAndRetryResult {
   success: boolean;
   needsLogin: boolean;
   error: string | null;
-  data: any | null;
+  data: unknown | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -154,7 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       });
     },
-    [router]
+    []
   );
 
   return (
