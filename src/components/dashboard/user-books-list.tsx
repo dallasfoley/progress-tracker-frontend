@@ -1,10 +1,9 @@
-import UserBook from "@/components/userbook";
 import { getCurrentUser } from "@/lib/auth";
-import { getUserBooks } from "@/server/actions/userBook/getUserBooks";
+import { getUserBooks } from "@/server/functions/getUserBooks";
 import { redirect } from "next/navigation";
 import type { UserBookDetails } from "@/schema/UserBookSchema";
-import Link from "next/link";
-import { Button } from "../ui/button";
+import { UserBooksDisplay } from "./user-books-display";
+import { UserBooksClientWrapper } from "./user-books-list-client-wrapper";
 
 export const experimental_ppr = false;
 
@@ -12,7 +11,7 @@ export async function UserBooksList() {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/");
   }
 
   let userBooks: UserBookDetails[] = [];
@@ -20,17 +19,13 @@ export async function UserBooksList() {
 
   try {
     const response = await getUserBooks(user.id);
-    if (response.success && response.data) {
-      userBooks = response.data;
-    } else {
-      error = response.message;
+    if (response.status === 401) {
+      return <UserBooksClientWrapper userId={user.id} userRole={user.role} />;
     }
+    userBooks = response.data || [];
   } catch (e) {
     console.error("Error fetching user books:", e);
     error = e instanceof Error ? e.message : "Failed to load your books";
-  }
-
-  if (error) {
     return <p className="text-red-500 text-center">{error}</p>;
   }
 
@@ -42,22 +37,5 @@ export async function UserBooksList() {
     );
   }
 
-  return (
-    <div className="flex flex-col items-center">
-      {user.role === "ADMIN" && (
-        <div className="flex justify-end mb-4">
-          <Button variant="secondary" asChild>
-            <Link href="/admin/add">Add Book to Database</Link>
-          </Button>
-        </div>
-      )}
-      <ul className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3">
-        {userBooks.map((book: UserBookDetails, index: number) => (
-          <li key={book.bookId || index} className="text-zinc-200">
-            <UserBook userBook={book} />
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+  return <UserBooksDisplay userBooks={userBooks} userRole={user.role} />;
 }

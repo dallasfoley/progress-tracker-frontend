@@ -39,7 +39,6 @@ export default function DashboardPage() {
             </Link>
           </Button>
         </div>
-
         <CardContent>
           <Suspense fallback={<UserBooksListSkeleton />}>
             <UserBooksList />

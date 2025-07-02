@@ -16,7 +16,7 @@ import {
 } from "../ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RegisterSchema } from "@/schema/UserSchema";
-import { register } from "@/server/actions/user/register";
+import { register } from "@/server/actions/auth/register";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";

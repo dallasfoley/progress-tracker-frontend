@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "../ui/card";
 import Link from "next/link";
-import { loginEmail } from "@/server/actions/user/loginEmail";
+import { loginEmail } from "@/server/actions/auth/loginEmail";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";

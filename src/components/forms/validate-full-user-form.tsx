@@ -51,7 +51,7 @@ export default function ValidateFullUserForm({
   };
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form action={onSubmit} onSubmit={form.handleSubmit(onSubmit)}>
         <FormLabel className="text-xl font-semibold ">
           Validate Credentials
         </FormLabel>

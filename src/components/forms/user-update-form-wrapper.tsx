@@ -9,9 +9,5 @@ export default async function UserUpdateFormWrapper() {
     redirect("/login");
   }
 
-  return (
-    <>
-      <UpdateUserForm user={user} />
-    </>
-  );
+  return <UpdateUserForm user={user} />;
 }

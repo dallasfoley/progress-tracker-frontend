@@ -1,4 +1,5 @@
 import Navbar from "@/components/navbar";
+import { AuthProvider } from "@/providers/auth-provider";
 //import { ThemeProvider } from "@/components/theme-components/theme-provider";
 
 export default function AuthenticatedLayout({
@@ -9,7 +10,7 @@ export default function AuthenticatedLayout({
   return (
     <div className="min-h-svh w-full flex flex-col">
       <Navbar />
-      {children}
+      <AuthProvider>{children}</AuthProvider>
       {/* <ThemeProvider
         attribute="class"
         defaultTheme="system"

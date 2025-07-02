@@ -1,18 +1,31 @@
 import { Link } from "lucide-react";
 import { Button } from "../ui/button";
 import { getCurrentUser } from "@/lib/auth";
-import { getAllBooks } from "@/server/actions/book/getAllBooks";
+import { getAllBooks } from "@/server/functions/getAllBooks";
 import BrowseBooksList from "./browse-books-list";
+import ClientBrowseBooksList from "./client-browse-books-list";
+import { Suspense } from "react";
 
 export const experimental_ppr = false;
 
 export default async function BrowseBooksWrapper() {
-  const [user, books] = await Promise.all([
+  const [user, { data, status }] = await Promise.all([
     getCurrentUser(),
-    (await getAllBooks()).data,
+    await getAllBooks(),
   ]);
 
-  if (!books || !user) return null;
+  if (!user) return null;
+
+  const books = data;
+
+  if (status === 401 || !books) {
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <ClientBrowseBooksList userId={user.id} />
+      </Suspense>
+    );
+  }
+
   return (
     <div>
       {user?.role === "ADMIN" && (
