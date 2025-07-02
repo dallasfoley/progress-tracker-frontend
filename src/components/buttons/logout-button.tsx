@@ -1,6 +1,6 @@
 "use client";
 
-import { logout } from "@/server/actions/user/logout";
+import { logout } from "@/server/actions/auth/logout";
 import { Button } from "../ui/button";
 import { IoLogOutOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";

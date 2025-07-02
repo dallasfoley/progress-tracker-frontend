@@ -1,6 +1,6 @@
 "use client";
 
-import { logout } from "@/server/actions/user/logout";
+import { logout } from "@/server/actions/auth/logout";
 import Link from "next/link";
 import { MdOutlineLogout } from "react-icons/md";
 

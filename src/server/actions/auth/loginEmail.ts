@@ -1,16 +1,16 @@
 "use server";
 
-import { RegisterSchema } from "@/schema/UserSchema";
+import { LoginEmailSchema } from "@/schema/UserSchema";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:7000/api";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:7000/api";
 
-export async function register(formData: {
-  username: string;
+export async function loginEmail(formData: {
   email: string;
   password: string;
 }) {
-  const { success, error, data } = RegisterSchema.safeParse(formData);
+  const { success, error, data } = LoginEmailSchema.safeParse(formData);
 
   if (!success) {
     throw new Error(error.message);
@@ -18,60 +18,60 @@ export async function register(formData: {
 
   try {
     const form = new FormData();
-    form.append("username", data.username);
     form.append("email", data.email);
     form.append("password", data.password);
 
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    const response = await fetch(`${API_BASE_URL}/auth/login/email`, {
       method: "POST",
       headers: {
         Accept: "application/json",
       },
-      body: form,
       credentials: "include",
+      body: form,
     });
 
     if (response.ok) {
-      const [res, cookieStore] = await Promise.all([
+      const [result, cookieStore] = await Promise.all([
         response.json(),
         cookies(),
       ]);
-      cookieStore.set("user", res.data, {
+      cookieStore.set("user", result.data, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60,
+      });
+      cookieStore.set("accessToken", result.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 60 * 60, // 1 hour
       });
-      cookieStore.set("accessToken", res.accessToken, {
+      cookieStore.set("refreshToken", result.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 60 * 60, // 1 hour
       });
-      cookieStore.set("refreshToken", res.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60, // 1 hour
-      });
-      return { success: true, message: res.message, data: res.data };
+      return {
+        success: true,
+        message: "Login successful",
+        data: result.data,
+      };
     } else {
-      const res = await response.json();
+      const result = await response.json();
       return {
         success: false,
-        message:
-          res.message ||
-          `Server error: ${response.status}` ||
-          "Network error during signup",
+        message: result.message || "Login failed",
         data: null,
       };
     }
   } catch (error) {
-    console.error("Network error during signup:", error);
+    console.error("Error logging in:", error);
     return {
       success: false,
-      message:
-        error instanceof Error ? error.message : "Network error during signup",
+      message: "Login failed",
+      data: null,
     };
   }
 }

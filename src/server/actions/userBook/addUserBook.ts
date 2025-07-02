@@ -3,9 +3,10 @@
 import { UserBook, UserBookSchema } from "@/schema/UserBookSchema";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
+import { refreshAndRetry } from "../auth/refreshAndRetry";
 
 export async function addUserBook(userBook: UserBook) {
-  const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:7000/api";
+  const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/user_books/${userBook.userId}/${userBook.bookId}`;
 
   const { success, error, data } = UserBookSchema.safeParse(userBook);
 
@@ -15,23 +16,43 @@ export async function addUserBook(userBook: UserBook) {
 
   try {
     const accessToken = (await cookies()).get("accessToken")?.value;
-    const response = await fetch(
-      `${API_BASE_URL}/user_books/${userBook.userId}/${userBook.bookId}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        credentials: "include",
-        body: JSON.stringify(data),
-      }
-    );
 
+    const options: RequestInit = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(data),
+      credentials: "include",
+      cache: "no-store", // Ensure we always get the latest data
+      next: {
+        tags: ["user-books"],
+      },
+    };
+    const response = await fetch(url, options);
     const res = await response.json();
 
     console.log("Response status:", response.status);
+
+    if (response.status === 401) {
+      const { success, error, data } = await refreshAndRetry(url, options);
+      if (!success) {
+        return {
+          success: false,
+          message: error || "Unauthorized, login required",
+          data: null,
+        };
+      } else {
+        revalidateTag("user-books");
+        return {
+          success: true,
+          message: data.message,
+          data: data.data,
+        };
+      }
+    }
     if (!response.ok) {
       return {
         success: false,

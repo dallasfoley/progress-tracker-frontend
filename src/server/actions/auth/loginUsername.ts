@@ -3,7 +3,8 @@
 import { LoginUsernameSchema } from "@/schema/UserSchema";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:7000/api";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:7000/api";
 
 export async function loginUsername(formData: {
   username: string;
@@ -41,8 +42,6 @@ export async function loginUsername(formData: {
     const result = await response.json();
 
     console.log("Login successful:", result);
-
-    // ✅ This is correct for server actions (or any "use server" function)
     const cookieStore = await cookies();
     cookieStore.set("user", JSON.stringify(result.data), {
       httpOnly: true,

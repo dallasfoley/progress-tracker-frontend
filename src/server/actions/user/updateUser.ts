@@ -2,8 +2,7 @@
 
 import { Register, RegisterSchema } from "@/schema/UserSchema";
 import { cookies } from "next/headers";
-
-const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:7000/api";
+import { refreshAndRetry } from "../auth/refreshAndRetry";
 
 export async function updateUser(user: Register, id: number) {
   const { success, error, data } = RegisterSchema.safeParse(user);
@@ -13,10 +12,11 @@ export async function updateUser(user: Register, id: number) {
   }
   const cookieStore = await cookies();
   try {
+    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/users`;
     const accessToken = cookieStore.get("accessToken")?.value;
     const { username, email, password } = data;
     const userData = { id, username, email, password };
-    const response = await fetch(`${API_BASE_URL}/users`, {
+    const options: RequestInit = {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -25,7 +25,9 @@ export async function updateUser(user: Register, id: number) {
       },
       credentials: "include",
       body: JSON.stringify(userData),
-    });
+    };
+
+    const response = await fetch(url, options);
 
     if (response.ok) {
       const result = await response.json();
@@ -41,6 +43,27 @@ export async function updateUser(user: Register, id: number) {
         data: result.data,
       };
     }
+    if (response.status === 401) {
+      const { success, error, data } = await refreshAndRetry(url, options);
+      if (!success) {
+        return {
+          success: false,
+          message: error || "Unauthorized, login required",
+          data: null,
+        };
+      } else {
+        return {
+          success: true,
+          message: data.message,
+          data: data.data,
+        };
+      }
+    }
+    return {
+      success: false,
+      message: "Failed to update user.",
+      data: null,
+    };
   } catch (error) {
     console.error("Network error during user update:", error);
     return {

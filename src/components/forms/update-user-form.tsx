@@ -48,7 +48,10 @@ export default function UpdateUserForm({ user }: { user: User }) {
   };
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        action={() => onSubmit(form.getValues())}
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
         <Label className="text-3xl font-bold text-zinc-200 text-center my-8">
           Update User Info
         </Label>

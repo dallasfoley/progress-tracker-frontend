@@ -1,30 +1,47 @@
 "use server";
 
 import { UserBookDetails } from "@/schema/UserBookSchema";
-import { API_BASE_URL } from "../book/getAllBooks";
 import { cookies } from "next/headers";
 import { revalidateTag } from "next/cache";
+import { refreshAndRetry } from "../auth/refreshAndRetry";
 
 export async function updateUserBookStatus(
   userbook: UserBookDetails,
   status: UserBookDetails["status"]
 ) {
   try {
+    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/user_books/status/${userbook.userId}/${userbook.bookId}`;
     const accessToken = (await cookies()).get("accessToken")?.value;
-    const response = await fetch(
-      `${API_BASE_URL}/user_books/status/${userbook.userId}/${userbook.bookId}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify({ status }),
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
+    const options: RequestInit = {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    };
+    const response = await fetch(url, options);
+
+    if (response.status === 401) {
+      const { success, error, data } = await refreshAndRetry(url, options);
+      if (!success) {
+        return {
+          success: false,
+          message: error || "Unauthorized, login required",
+          data: null,
+        };
+      } else {
+        return {
+          success: true,
+          message: data.message,
+          data: data.data,
+        };
       }
-    );
+    }
 
     const res = await response.json();
+
     if (!response.ok) {
       return {
         success: false,
