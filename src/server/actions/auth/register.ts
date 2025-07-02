@@ -40,20 +40,20 @@ export async function register(formData: {
       cookieStore.set("user", res.data, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "none",
         maxAge: 60 * 60, // 1 hour
       });
       cookieStore.set("accessToken", res.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "none",
         maxAge: 60 * 60, // 1 hour
       });
       cookieStore.set("refreshToken", res.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60, // 1 hour
+        sameSite: "none",
+        maxAge: 60 * 60 * 24 * 7, // 1 week
       });
       return { success: true, message: res.message, data: res.data };
     } else {

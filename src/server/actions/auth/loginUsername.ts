@@ -46,22 +46,22 @@ export async function loginUsername(formData: {
     cookieStore.set("user", JSON.stringify(result.data), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
       maxAge: 60 * 60,
       path: "/",
     });
     cookieStore.set("accessToken", result.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
       maxAge: 60 * 60,
       path: "/",
     });
     cookieStore.set("refreshToken", result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60,
+      sameSite: "none",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
       path: "/",
     });
 

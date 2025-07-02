@@ -38,20 +38,20 @@ export async function loginEmail(formData: {
       cookieStore.set("user", result.data, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "none",
         maxAge: 60 * 60,
       });
       cookieStore.set("accessToken", result.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "none",
         maxAge: 60 * 60, // 1 hour
       });
       cookieStore.set("refreshToken", result.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60, // 1 hour
+        sameSite: "none",
+        maxAge: 60 * 60 * 24 * 7, // 1 week
       });
       return {
         success: true,
