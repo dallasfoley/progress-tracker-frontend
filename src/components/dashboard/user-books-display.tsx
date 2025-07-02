@@ -1,5 +1,5 @@
 import { UserBookDetails } from "@/schema/UserBookSchema";
-import UserBook from "@/components/UserBook";
+import UserBook from "@/components/dashboard/userbook";
 import { Button } from "../ui/button";
 import Link from "next/link";
 

@@ -1,3 +1,4 @@
+import UserBook from "../userbook";
 import { getCurrentUser } from "@/lib/auth";
 import { getUserBooks } from "@/server/functions/getUserBooks";
 import { redirect } from "next/navigation";
