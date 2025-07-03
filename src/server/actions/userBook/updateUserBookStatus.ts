@@ -49,6 +49,7 @@ export async function updateUserBookStatus(
       };
     }
     revalidateTag("user-books");
+    revalidateTag("books");
     return {
       success: res.success ?? true,
       message: res.message || "Book updated successfully!",

@@ -46,6 +46,7 @@ export async function addUserBook(userBook: UserBook) {
         };
       } else {
         revalidateTag("user-books");
+        revalidateTag("books");
         return {
           success: true,
           message: data.message,

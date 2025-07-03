@@ -5,6 +5,12 @@ import type { User } from "@/schema/UserSchema";
 export async function getCurrentUser(): Promise<User | null> {
   try {
     const cookieStore = await cookies();
+    const allCookies = cookieStore.getAll();
+    console.log(
+      "Available cookies:",
+      allCookies.map((c) => c.name)
+    );
+
     const userSession = cookieStore.get("user");
     if (!userSession || !userSession.value) {
       console.log("No user session found in cookies.");

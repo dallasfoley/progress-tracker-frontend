@@ -1,6 +1,7 @@
 "use server";
 
 import { LoginEmailSchema } from "@/schema/UserSchema";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const API_BASE_URL =
@@ -39,20 +40,26 @@ export async function loginEmail(formData: {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "none",
+        path: "/",
         maxAge: 60 * 60,
       });
       cookieStore.set("accessToken", result.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "none",
+        path: "/",
         maxAge: 60 * 60, // 1 hour
       });
       cookieStore.set("refreshToken", result.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "none",
+        path: "/",
         maxAge: 60 * 60 * 24 * 7, // 1 week
       });
+      revalidatePath("/dashboard");
+      revalidateTag("user");
+      revalidateTag("user-books");
       return {
         success: true,
         message: "Login successful",

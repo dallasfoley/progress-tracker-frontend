@@ -39,6 +39,7 @@ export async function deleteUserBook(userId: number, bookId: number) {
     const res = await response.json();
     if (response.ok) {
       revalidateTag("user-books");
+      revalidateTag("books");
       return {
         success: res.success ?? true,
         message: res.message || "Book added successfully!",

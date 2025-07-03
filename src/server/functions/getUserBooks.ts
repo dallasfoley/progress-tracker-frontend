@@ -16,7 +16,10 @@ export async function getUserBooks(userId: number) {
         Accept: "application/json",
       },
       credentials: "include",
-      cache: "no-store",
+      cache: "force-cache",
+      next: {
+        tags: ["user-books"],
+      },
     };
     const response = await fetch(url, options);
     console.log("status getUserBooks:", response.status);

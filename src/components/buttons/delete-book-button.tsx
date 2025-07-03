@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { deleteBook } from "@/server/actions/book/deleteBook";
+import { deleteBook } from "@/server/actions/book/adminDeleteBook";
 
 export default function DeleteBookButton({ id }: { id: number }) {
   const router = useRouter();
