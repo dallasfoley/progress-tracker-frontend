@@ -49,6 +49,7 @@ export default function DashboardPage() {
           </Suspense>
         </CardContent>
       </Card>
+      <AuthDebug />
     </main>
   );
 }
@@ -65,6 +66,7 @@ function UserGreetingSkeleton() {
 }
 
 import { Skeleton, SVGSkeleton } from "@/components/skeleton";
+import { AuthDebug } from "@/components/auth-debug";
 
 const UserBooksListSkeleton = () => (
   <>

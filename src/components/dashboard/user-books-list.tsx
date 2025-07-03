@@ -9,12 +9,16 @@ export const dynamic = "force-dynamic";
 export const experimental_ppr = false;
 
 export async function UserBooksList() {
+  console.log("UserBooksList: Starting component render");
+
   const user = await getCurrentUser();
 
   if (!user) {
-    console.log("No user found in books list, redirecting to home page.");
+    console.log("UserBooksList: No user found, redirecting to home page");
     redirect("/");
   }
+
+  console.log("UserBooksList: User found:", user.id);
 
   let userBooks: UserBookDetails[] = [];
   let error: string | null = null;
