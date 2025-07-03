@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/providers/auth-provider";
 
 interface UseAuthenticatedFetchOptions<T> {
@@ -20,6 +20,18 @@ export function useAuthenticatedFetch<T>({
   const [hasInitialized, setHasInitialized] = useState(false);
   const { refreshAndRetryRequest, isLoading, error, clearError, isPending } =
     useAuth();
+
+  const requestOptionsRef = useRef(requestOptions);
+  const requestUrlRef = useRef(requestUrl);
+
+  // Update refs when values change
+  useEffect(() => {
+    requestOptionsRef.current = requestOptions;
+  }, [requestOptions]);
+
+  useEffect(() => {
+    requestUrlRef.current = requestUrl;
+  }, [requestUrl]);
 
   const fetchData = useCallback(async () => {
     clearError();
@@ -77,17 +89,12 @@ export function useAuthenticatedFetch<T>({
     } finally {
       setHasInitialized(true);
     }
-  }, [
-    fetchAction,
-    requestUrl,
-    requestOptions,
-    refreshAndRetryRequest,
-    clearError,
-  ]);
-  const refetch = () => {
+  }, [fetchAction, refreshAndRetryRequest, clearError]);
+
+  const refetch = useCallback(() => {
     setHasInitialized(false);
     fetchData();
-  };
+  }, [fetchData]);
 
   useEffect(() => {
     if (autoFetch) {

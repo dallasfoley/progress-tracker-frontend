@@ -28,7 +28,7 @@ export async function getAllBooks(): Promise<{
 
     if (!response.ok) {
       if (response.status === 401) {
-        console.error("getAllBooks: 401 Unauthorized");
+        console.log("getAllBooks: 401 Unauthorized");
         return {
           success: false,
           status: 401,

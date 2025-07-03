@@ -3,6 +3,7 @@
 import { getUserBooks } from "@/server/functions/getUserBooks";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { UserBooksDisplay } from "./user-books-display";
+import { Suspense, useCallback, useMemo } from "react";
 
 interface UserBooksClientWrapperProps {
   userId: number;
@@ -13,6 +14,23 @@ export function UserBooksClientWrapper({
   userId,
   userRole,
 }: UserBooksClientWrapperProps) {
+  const options = useMemo(
+    () => ({
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+      credentials: "include" as RequestCredentials,
+      cache: "force-cache" as RequestCache,
+      next: {
+        tags: ["user-books"],
+      },
+    }),
+    []
+  );
+
+  const fetchAction = useCallback(() => getUserBooks(userId), [userId]);
+
   const {
     data: result,
     isLoading,
@@ -20,19 +38,9 @@ export function UserBooksClientWrapper({
     refetch,
     hasInitialized,
   } = useAuthenticatedFetch({
-    fetchAction: () => getUserBooks(userId),
+    fetchAction,
     requestUrl: `${process.env.NEXT_PUBLIC_API_BASE_URL}/user_books/${userId}`,
-    requestOptions: {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-      credentials: "include",
-      cache: "force-cache",
-      next: {
-        tags: ["user-books"],
-      },
-    },
+    requestOptions: options,
   });
 
   if (isLoading && !hasInitialized) {
@@ -65,5 +73,18 @@ export function UserBooksClientWrapper({
     );
   }
 
-  return <UserBooksDisplay userBooks={result.data || []} userRole={userRole} />;
+  const userBooks = Array.isArray(result.data) ? result.data : [];
+  if (!userBooks || userBooks.length === 0) {
+    return (
+      <p className="text-zinc-400 text-center">
+        You have no books in your reading list.
+      </p>
+    );
+  }
+
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <UserBooksDisplay userBooks={result.data} userRole={userRole} />
+    </Suspense>
+  );
 }

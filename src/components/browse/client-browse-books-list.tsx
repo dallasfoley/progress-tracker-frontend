@@ -2,8 +2,26 @@
 
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { getAllBooks } from "@/server/functions/getAllBooks";
+import { useCallback, useMemo } from "react";
 
 export default function ClientBrowseBooksList() {
+  const options = useMemo(
+    () => ({
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+      credentials: "include" as RequestCredentials,
+      cache: "force-cache" as RequestCache,
+      next: {
+        tags: ["books"],
+      },
+    }),
+    []
+  );
+
+  const fetchAction = useCallback(() => getAllBooks(), []);
+
   const {
     data: result,
     isLoading,
@@ -11,19 +29,9 @@ export default function ClientBrowseBooksList() {
     refetch,
     hasInitialized,
   } = useAuthenticatedFetch({
-    fetchAction: () => getAllBooks(),
+    fetchAction,
     requestUrl: `${process.env.NEXT_PUBLIC_API_BASE_URL}/books`,
-    requestOptions: {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-      credentials: "include",
-      cache: "force-cache",
-      next: {
-        tags: ["user-books"],
-      },
-    },
+    requestOptions: options,
   });
 
   if (isLoading && !hasInitialized) {

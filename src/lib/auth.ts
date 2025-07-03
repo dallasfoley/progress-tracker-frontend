@@ -6,8 +6,6 @@ export async function getCurrentUser(): Promise<User | null> {
   try {
     const cookieStore = await cookies();
     const userSession = cookieStore.get("user");
-    console.log("User session cookie:", userSession);
-    console.log("All cookies:", cookieStore.getAll());
     if (!userSession || !userSession.value) {
       console.log("No user session found in cookies.");
       return null;
