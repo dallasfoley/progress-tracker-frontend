@@ -1,11 +1,13 @@
 import { cookies } from "next/headers";
 import type { User } from "@/schema/UserSchema";
+//import { unstable_cache } from "next/cache";
 
 export async function getCurrentUser(): Promise<User | null> {
   try {
     const cookieStore = await cookies();
     const userSession = cookieStore.get("user");
-
+    console.log("User session cookie:", userSession);
+    console.log("All cookies:", cookieStore.getAll());
     if (!userSession || !userSession.value) {
       console.log("No user session found in cookies.");
       return null;
@@ -18,6 +20,8 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 }
 
+//export const getCurrentUser = unstable_cache(_getCurrentUser, ["user"]);
+
 export async function getAccessToken(): Promise<string | null> {
   try {
     const cookieStore = await cookies();
@@ -28,6 +32,8 @@ export async function getAccessToken(): Promise<string | null> {
     return null;
   }
 }
+
+//export const getAccessToken = unstable_cache(_getAccessToken, ["accessToken"]);
 
 export async function getRefreshToken(): Promise<string | null> {
   try {

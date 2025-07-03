@@ -1,6 +1,7 @@
 "use server";
 
 import { LoginUsernameSchema } from "@/schema/UserSchema";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const API_BASE_URL =
@@ -46,25 +47,27 @@ export async function loginUsername(formData: {
     cookieStore.set("user", JSON.stringify(result.data), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 60 * 60,
       path: "/",
     });
     cookieStore.set("accessToken", result.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 60 * 60,
       path: "/",
     });
     cookieStore.set("refreshToken", result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 60 * 60 * 24 * 7, // 1 week
       path: "/",
     });
-
+    revalidatePath("/dashboard");
+    revalidateTag("user");
+    revalidateTag("user-books");
     return {
       success: true,
       data: result.data,

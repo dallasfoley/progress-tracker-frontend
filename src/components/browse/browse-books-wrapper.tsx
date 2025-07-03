@@ -6,6 +6,7 @@ import BrowseBooksList from "./browse-books-list";
 import ClientBrowseBooksList from "./client-browse-books-list";
 import { Suspense } from "react";
 
+export const dynamic = "force-dynamic";
 export const experimental_ppr = false;
 
 export default async function BrowseBooksWrapper() {

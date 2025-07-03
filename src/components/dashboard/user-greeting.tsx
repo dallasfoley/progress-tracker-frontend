@@ -1,12 +1,14 @@
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
 export const experimental_ppr = false;
 
 export async function UserGreeting() {
   const user = await getCurrentUser();
 
   if (!user) {
+    console.log("No user found in greeting, redirecting to home page.");
     redirect("/");
   }
 

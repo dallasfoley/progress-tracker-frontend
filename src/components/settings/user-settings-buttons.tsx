@@ -4,16 +4,19 @@ import DeleteAccountButton from "../buttons/delete-account-button";
 import LogoutButton from "../buttons/logout-button";
 import UpdateAccountButton from "../buttons/update-account-button";
 
+export const dynamic = "force-dynamic";
+export const experimental_ppr = false;
+
 export default async function UserSettingsButtons() {
   let user;
   try {
     user = await getCurrentUser();
-    if (!user || !user.id) {
+  } catch (e) {
+    console.error("Error fetching user:", e);
+  } finally {
+    if (!user) {
       redirect("/");
     }
-  } catch (e) {
-    console.log(e);
-    redirect("/");
   }
   return (
     <>
