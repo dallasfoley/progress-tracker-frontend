@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/upstash-auth";
 import { redirect } from "next/navigation";
 
 export const experimental_ppr = false;

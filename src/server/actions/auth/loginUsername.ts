@@ -1,5 +1,6 @@
 "use server";
 
+import { JWTSessionManager } from "@/lib/session";
 import { LoginUsernameSchema } from "@/schema/UserSchema";
 import { cookies } from "next/headers";
 
@@ -41,29 +42,35 @@ export async function loginUsername(formData: {
 
     const result = await response.json();
 
+    await JWTSessionManager.createSession(
+      result.data,
+      result.accessToken,
+      result.refreshToken
+    );
+
     // "Login successful:", result);
-    const cookieStore = await cookies();
-    cookieStore.set("user", JSON.stringify(result.data), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      maxAge: 60 * 60,
-      path: "/",
-    });
-    cookieStore.set("accessToken", result.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      maxAge: 60 * 60,
-      path: "/",
-    });
-    cookieStore.set("refreshToken", result.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-      path: "/",
-    });
+    // const cookieStore = await cookies();
+    // cookieStore.set("user", JSON.stringify(result.data), {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "none",
+    //   maxAge: 60 * 60,
+    //   path: "/",
+    // });
+    // cookieStore.set("accessToken", result.accessToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "none",
+    //   maxAge: 60 * 60,
+    //   path: "/",
+    // });
+    // cookieStore.set("refreshToken", result.refreshToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "none",
+    //   maxAge: 60 * 60 * 24 * 7, // 1 week
+    //   path: "/",
+    // });
 
     return {
       success: true,

@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/upstash-auth";
 import { getUserBooks } from "@/server/functions/getUserBooks";
 import { redirect } from "next/navigation";
 import type { UserBookDetails } from "@/schema/UserBookSchema";

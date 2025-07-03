@@ -38,53 +38,25 @@ export async function addUserBook(userBook: UserBook) {
 
     if (response.status === 401) {
       const { success, error, data } = await refreshAndRetry(url, options);
-      if (!success) {
-        return {
-          success: false,
-          message: error || "Unauthorized, login required",
-          data: null,
-        };
-      } else {
-        revalidateTag("user-books");
-        return {
-          success: true,
-          message: data.message,
-          data: data.data,
-        };
-      }
-    }
-    if (!response.ok) {
+      if (success) revalidateTag("user-books");
       return {
-        success: false,
-        message: res.message || `Server error: ${response.status}`,
-      };
-    } else {
-      revalidateTag("user-books");
-      return {
-        success: res.success ?? true,
-        message: res.message || "Book added successfully!",
-        data: res.data,
+        success,
+        message: error || "Unauthorized, please log in again.",
+        data,
       };
     }
+    if (response.ok) revalidateTag("user-books");
+    return {
+      success: response.ok,
+      message: res.message || "Error adding book",
+      data: res.data || null,
+    };
   } catch (error) {
     console.error("Error in addUserBook:", error);
-
-    if (error instanceof Error) {
-      if (error.message.includes("fetch")) {
-        return {
-          success: false,
-          message: "Network error. Please check your connection.",
-        };
-      }
-      return {
-        success: false,
-        message: error.message,
-      };
-    }
-
     return {
       success: false,
-      message: "An unexpected error occurred",
+      message: error instanceof Error ? error.message : "Failed to add book",
+      data: null,
     };
   }
 }
