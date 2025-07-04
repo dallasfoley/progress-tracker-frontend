@@ -6,7 +6,7 @@ Our frontend utilizes a Backend-For-Frontend architecture where as much of the r
 
 The overall structure of the entire application is as follows:
 
-We have a Next.js application which runs in the client's browser runtime environment as well as on a Node.js runtime environment through an AWS EC2 instance abstracted away through AWS Lambda Serverless Functions abstracted away through Vercel (this is how Vercel deploys your server-side functionality). Our Next.js backend is connected to our Javalin RESTful API deployed on an AWS EC2 instance through a Docker container, which is connected to our MySQL database managed by AWS RDS. We utilize JSON Web Tokens for auth.
+We have a Next.js application deployed through Vercel, which runs in the client's browser runtime environment as well as on a Node.js runtime environment through serverless functions (basically, AWS Lambda functions spin up managed EC2 instances where you don't need to interact manually with the server, Vercel adds a layer abstraction on top of this to spin up AWS Lambda Functions. Our Next.js backend is connected to our Javalin RESTful API deployed on an AWS EC2 instance through a Docker container, which is connected to our MySQL database managed by AWS RDS. We utilize JSON Web Tokens for auth.
 
 ## Technologies Used
 
@@ -56,7 +56,13 @@ There exists so many layers of caching in React and Next.js alone for both front
 
 
 ## Auth
-We utilize JWTs stored in cookies passed back and forth from client to server. When the user logs in or signs-up through a form, the request is sent to the java backend
+
+We utilize JWTs stored in cookies passed back and forth from client to server. When the user logs in or signs up through a form, the request is sent through a Next.js server action to the Java backend, which makes a call to the database through a database connection manager to verify the given credentials. If successful, the Java backend will send back a successful response to the browser containing the user info, a cookie containing the access token and a cookie containing a refresh token and its . 
+
+Before I get any further, let me explain server actions and server functions which are critical in managing our cookies we store our users' data, access tokens and refresh tokens.
+A Server Function is an asynchronous function that runs on the server. They can be called from client through a network request, which is why they must be asynchronous.
+
+## Optimizations
 
 
 
