@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@/lib/auth";
 import { getUserBooks } from "@/server/functions/getUserBooks";
-import { redirect } from "next/navigation";
+//import { redirect } from "next/navigation";
 import type { UserBookDetails } from "@/schema/UserBookSchema";
 import { UserBooksDisplay } from "./user-books-display";
 import { UserBooksClientWrapper } from "./user-books-list-client-wrapper";
@@ -14,7 +14,7 @@ export async function UserBooksList() {
 
   if (!user) {
     console.log("UserBooksList: No user found, redirecting to home page");
-    redirect("/");
+    return <div>No User Found</div>;
   }
 
   console.log("UserBooksList: User found:", user.id);
