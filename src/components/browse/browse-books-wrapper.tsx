@@ -5,19 +5,19 @@ import { getAllBooks } from "@/server/functions/getAllBooks";
 import BrowseBooksList from "./browse-books-list";
 import ClientBrowseBooksList from "./client-browse-books-list";
 import { Suspense } from "react";
-
-export const dynamic = "force-dynamic";
-export const experimental_ppr = false;
+import { getUserBooks } from "@/server/functions/getUserBooks";
+import { redirect } from "next/navigation";
 
 export default async function BrowseBooksWrapper() {
-  const [user, { data, status }] = await Promise.all([
+  const [user, booksResponse] = await Promise.all([
     getCurrentUser(),
-    await getAllBooks(),
+    getAllBooks(),
   ]);
 
-  if (!user) return null;
+  if (!user) redirect("/");
 
-  const books = data;
+  const books = booksResponse?.data;
+  const status = booksResponse?.status;
 
   if (status === 401 || !books) {
     return (
@@ -26,6 +26,9 @@ export default async function BrowseBooksWrapper() {
       </Suspense>
     );
   }
+
+  const userBooksResponse = await getUserBooks(user.id);
+  const userBooks = userBooksResponse.data || [];
 
   return (
     <div>
@@ -36,7 +39,7 @@ export default async function BrowseBooksWrapper() {
       )}
 
       <div className="relative z-10 max-w-7xl mx-auto">
-        <BrowseBooksList books={books} user={user} />
+        <BrowseBooksList books={books} user={user} userBooks={userBooks} />
       </div>
     </div>
   );

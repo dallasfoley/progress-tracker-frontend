@@ -11,6 +11,14 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { useRouter } from "next/navigation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { FaStar } from "react-icons/fa";
 
 export default function AddUserBookButton({
   book,
@@ -110,11 +118,28 @@ export default function AddUserBookButton({
             {status === "COMPLETED" && (
               <div className="flex items-center gap-3">
                 <Label htmlFor="r3">User Rating</Label>
-                <Input
-                  type="number"
-                  value={userRating}
-                  onChange={(e) => setUserRating(Number(e.target.value))}
-                />
+                <Select
+                  onValueChange={(val) => setUserRating(Number(val))}
+                  defaultValue={userRating.toString()}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Rate this book" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 Star</SelectItem>
+                    <SelectItem value="2">2 Stars</SelectItem>
+                    <SelectItem value="3">3 Stars</SelectItem>
+                    <SelectItem value="4">4 Stars</SelectItem>
+                    <SelectItem value="5">5 Stars</SelectItem>
+                  </SelectContent>
+                </Select>
+                {userRating && (
+                  <p className="flex justify-between items-center gap-2">
+                    {Array.from({ length: userRating }, (_, i) => (
+                      <FaStar key={i} />
+                    ))}
+                  </p>
+                )}
               </div>
             )}
           </RadioGroup>

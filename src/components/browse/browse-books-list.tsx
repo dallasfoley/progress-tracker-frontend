@@ -14,15 +14,31 @@ import {
 import { User } from "@/schema/UserSchema";
 import Image from "next/image";
 import { useState } from "react";
+import { Input } from "../ui/input";
+import {
+  Select,
+  SelectGroup,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { UserBookDetails } from "@/schema/UserBookSchema";
 
 export default function BrowseBooksList({
   books,
   user,
+  userBooks,
 }: {
   books: BookDetails[];
   user: User;
+  userBooks: UserBookDetails[];
 }) {
   const [bookList, setBookList] = useState<BookDetails[]>(books);
+  const isBookInUserLibrary = (bookId: number) => {
+    return userBooks.some((userBook) => userBook.bookId === bookId);
+  };
+
   return (
     <>
       <div className="mb-12 text-center">
@@ -62,7 +78,7 @@ export default function BrowseBooksList({
       <div className="mb-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
         <div className="flex items-center space-x-4">
           <div className="relative">
-            <input
+            <Input
               type="text"
               placeholder="Search books..."
               onChange={(e) => {
@@ -94,27 +110,31 @@ export default function BrowseBooksList({
           </div>
         </div>
 
-        <div className="flex items-center space-x-3">
-          <select
-            onChange={(e) =>
+        <div className="flex items-center text-white space-x-3 pr-4">
+          <Select
+            onValueChange={(val) =>
               setBookList(
                 books.filter((book) =>
-                  book.genre
-                    .toLowerCase()
-                    .includes(e.target.value.toLowerCase())
+                  book.genre.toLowerCase().includes(val.toLowerCase())
                 )
               )
             }
-            className="h-11 bg-zinc-800/50 border border-zinc-700/50 rounded-lg px-4 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 backdrop-blur-sm"
           >
-            <option value="">All Genres</option>
-            <option value="fiction">Fiction</option>
-            <option value="non-fiction">Non-Fiction</option>
-            <option value="mystery">Mystery</option>
-            <option value="romance">Romance</option>
-            <option value="fantasy">Fantasy</option>
-            <option value="science fiction">Science Fiction</option>
-          </select>
+            <SelectTrigger className="text-white">
+              <SelectValue placeholder="Genre" className="text-white" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">All Genres</SelectItem>
+                <SelectItem value="fiction">Fiction</SelectItem>
+                <SelectItem value="non-fiction">Non-Fiction</SelectItem>
+                <SelectItem value="mystery">Mystery</SelectItem>
+                <SelectItem value="romance">Romance</SelectItem>
+                <SelectItem value="fantasy">Fantasy</SelectItem>
+                <SelectItem value="science fiction">Science Fiction</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
 
           {/* <button className="h-11 px-4 bg-zinc-800/50 border border-zinc-700/50 rounded-lg text-zinc-300 hover:bg-zinc-700/50 transition-all duration-300 backdrop-blur-sm">
             <svg
@@ -167,6 +187,22 @@ export default function BrowseBooksList({
               <div className="absolute top-3 left-3 bg-blue-500/20 backdrop-blur-sm text-blue-300 text-xs px-2 py-1 rounded-full border border-blue-500/30">
                 {book.genre}
               </div>
+              {isBookInUserLibrary(book.id) && (
+                <div className="absolute bottom-3 right-3 bg-green-500/90 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded-full flex items-center space-x-1">
+                  <svg
+                    className="w-3 h-3"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span>In Library</span>
+                </div>
+              )}
             </div>
 
             <CardHeader className="pb-3">
@@ -189,7 +225,10 @@ export default function BrowseBooksList({
                 <span className="">
                   {book.inProgressCount} currently reading
                 </span>
-                <span>{book.completedCount} have read!</span>
+                <span>
+                  {book.completedCount}{" "}
+                  {book.completedCount === 1 ? "has" : "have"} read!
+                </span>
                 <div className="h-2 w-2 rounded-full bg-green-500" />
               </div>
 
@@ -212,7 +251,7 @@ export default function BrowseBooksList({
                 </span>
               </div>
 
-              {user && (
+              {user && !isBookInUserLibrary(book.id) && (
                 <div className="mt-4">
                   <AddUserBookButton book={book} user={user} />
                 </div>

@@ -1,9 +1,6 @@
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-export const experimental_ppr = false;
-
 export async function UserGreeting() {
   console.log("UserGreeting: Starting component render");
   const user = await getCurrentUser();

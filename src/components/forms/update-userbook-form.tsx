@@ -199,33 +199,13 @@ export default function UpdateUserBookForm({
                         type="number"
                         min={0}
                         max={userBook.pageCount}
-                        {...field}
-                        onChange={(e) => {
-                          const raw = e.target.value;
-
-                          // Allow empty string (so user can clear input)
-                          if (raw === "") {
-                            field.onChange(0); // or 0 if you prefer
-                            return;
-                          }
-
-                          // Remove leading zeros except if the input is just "0"
-                          const sanitized = raw.replace(/^0+(?=\d)/, "");
-
-                          // Update form with parsed number
-                          const parsed = Number.parseInt(sanitized);
-
-                          // If parsed is NaN (like user types "-"), fallback to 0 or ignore
-                          if (isNaN(parsed)) {
-                            field.onChange(0);
-                          } else {
-                            field.onChange(parsed);
-                          }
-                        }}
                         value={
                           field.value === undefined || field.value === null
                             ? ""
                             : field.value.toString()
+                        }
+                        onChange={(e) =>
+                          form.setValue("currentPage", Number(e.target.value))
                         }
                         disabled={isPending}
                       />

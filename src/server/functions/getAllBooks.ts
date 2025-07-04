@@ -8,7 +8,7 @@ export async function getAllBooks(): Promise<{
   status: number;
   message: string;
   data: BookDetails[] | null;
-}> {
+} | null> {
   try {
     const accessToken = (await cookies()).get("accessToken")?.value;
     const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/books`;
@@ -54,7 +54,12 @@ export async function getAllBooks(): Promise<{
       };
     }
   } catch (e) {
-    console.error("Network error during signup:", e);
-    throw e;
+    console.error("Network error during getAllBooks:", e);
+    return {
+      success: false,
+      status: 500,
+      message: e instanceof Error ? e.message : "Network error",
+      data: null,
+    };
   }
 }
