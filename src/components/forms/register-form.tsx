@@ -46,7 +46,7 @@ export function RegisterForm({
       // console.log(res);
       if (res?.success) {
         console.log(res);
-        toast.success("Registration successful! Redirecting to dashboard...");
+        toast.success("Registration successful! Please login.");
         router.replace("/dashboard");
       } else {
         setError(res?.message);

@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
 //import { redirect } from "next/navigation";
 
 export const experimental_ppr = false;
@@ -8,7 +9,7 @@ export async function UserGreeting() {
   const user = await getCurrentUser();
 
   if (!user) {
-    return <div>No User Found</div>;
+    redirect("/");
   }
 
   console.log("UserGreeting: User found:", user.username);
