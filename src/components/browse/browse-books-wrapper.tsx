@@ -8,6 +8,8 @@ import { Suspense } from "react";
 import { getUserBooks } from "@/server/functions/getUserBooks";
 import { redirect } from "next/navigation";
 
+export const experimental_ppr = false;
+
 export default async function BrowseBooksWrapper() {
   const [user, booksResponse] = await Promise.all([
     getCurrentUser(),

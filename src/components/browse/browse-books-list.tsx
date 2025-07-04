@@ -113,11 +113,13 @@ export default function BrowseBooksList({
         <div className="flex items-center text-white space-x-3 pr-4">
           <Select
             onValueChange={(val) =>
-              setBookList(
-                books.filter((book) =>
-                  book.genre.toLowerCase().includes(val.toLowerCase())
-                )
-              )
+              val === "all"
+                ? setBookList(books)
+                : setBookList(
+                    books.filter((book) =>
+                      book.genre.toLowerCase().includes(val.toLowerCase())
+                    )
+                  )
             }
           >
             <SelectTrigger className="text-white">

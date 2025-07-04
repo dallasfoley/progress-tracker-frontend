@@ -4,7 +4,6 @@ import DeleteAccountButton from "../buttons/delete-account-button";
 import LogoutButton from "../buttons/logout-button";
 import UpdateAccountButton from "../buttons/update-account-button";
 
-export const dynamic = "force-dynamic";
 export const experimental_ppr = false;
 
 export default async function UserSettingsButtons() {
