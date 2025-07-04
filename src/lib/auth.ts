@@ -15,8 +15,12 @@ export async function getCurrentUser(): Promise<User | null> {
     console.log("No user session found in cookies.");
     return null;
   }
-
-  return JSON.parse(userSession.value);
+  try {
+    return JSON.parse(userSession.value);
+  } catch (e) {
+    console.log("Error parsing user session:", e);
+    return null;
+  }
 }
 
 //export const getCurrentUser = unstable_cache(_getCurrentUser, ["user"]);
