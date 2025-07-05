@@ -101,11 +101,7 @@ When navigating between routes, the browser requests assets for the page like HT
 
 Next.js automatically splits your application into smaller JavaScript chunks based on routes. Instead of loading all the code upfront like traditional SPAs, only the code needed for the current route is loaded. This reduces the initial load time while other parts of the app are loaded in the background. By the time you click the link, the resources for the new route have already been loaded into the browser cache.
 
-When navigating to the new page, there's no full page reload or browser loading spinner. Instead, Next.js performs a client-side transition, making the page navigation feel instant.
-
-Traditionally, navigation to a server-rendered page triggers a full page load. This clears state, resets scroll position, and blocks interactivity.
-
-Next.js avoids this with client-side transitions using the <Link> component. Instead of reloading the page, it updates the content dynamically by:
+Traditionally, navigation to a server-rendered page triggers a full page load. This clears state, resets scroll position, and blocks interactivity. Next.js avoids this with client-side transitions (or soft-navigations) using the <Link> component. Instead of reloading the page, it updates the content dynamically by:
 
 1. Keeping any shared layouts and UI.
 2. Replacing the current page with the prefetched loading state or a new page if available.
