@@ -1,7 +1,9 @@
 # Progress Tracker Frontend
 
 
+
 ### The frontend for a Reading Progress Tracker application. 
+
 
 Our frontend utilizes a Backend-For-Frontend architecture where as much of the rendering work is done on the server as possible. This allows us to optimize performance in a variety of methods and reduce the bundle size that needs to be sent to the client.
 
@@ -18,14 +20,18 @@ We utilize Next.js as a proxy layer between the client and the Javalin server, w
 ### Next.js
 Next.js is all about optimizing the performance of our React frontend, particularly optimizing how our pages are rendered, how we cache our pages/components/functions and SEO. Next.js proposes a model where as much of the frontend functionality as possible, usually rendering and data fetching/updating, is pushed to the backend. This can allow us to prerender our static pages (HTML that does not need to be generated at request time) and cache them in Vercel's Edge Network at build time so they can be rendered and hydrated instantly on the client. Dynamic pages, on the other hand, must be generated at request time. However, we can use Next to stream in components as their data is fetched. We also utilize Next.js's experimental Partial Prerendering (PPR) feature, which allows us to combine dynamic and static rendering to prerender and cache our static components while only dynamically rendering the components that need to be, on the same page. Much more on all of this below.
 
+
 ### TypeScript 
 Allows type checking for our JavaScript code. Invaluable for any JS app requiring data fetching or even form submissions.
+
 
 ### Tailwind
 Allows us to write CSS in the same file as our JS using utility classes, allows global CSS variables and comes with utility functions which greatly enhances the speed of writing CSS.
 
+
 ### Shadcn UI
 A TypeScript and Tailwind compatible component UI library for a variety of JS frameworks. Typically, when building a frontend, you'd have to choose between building all the CSS and JS functionality of your UI components yourself or choose a component library where much of that work was done for you, but you couldn't easily customize these components with styling or functionality changes. Shadcn solves this by loading the Tailwind-styled components that we need right into our local code base in .tsx files, giving us a completely customizable component library.
+
 
 ### Zod 
 Zod is basically another type wrapper over our TypeScript that allows us to create much more complex type schemas than with TypeScript that can be used to validate and parse data. It also integrates extremely well with React-Hook-Form and Shadcn UI Form components (Shadcn UI forms are meant to be built with Zod and React-Hook-Form).
@@ -36,7 +42,9 @@ Zod is basically another type wrapper over our TypeScript that allows us to crea
 
 These two concepts are extremely intertwined in Next.js
 
+
 ### Rendering
+
 
 Rendering is essentially the process of Next running your code and producing HTML hydrated with JS and CSS. 
 
@@ -93,9 +101,12 @@ There exists so many layers of caching in React and Next.js alone, for mostly ba
 
 ### Authentication
 
+
 We utilize JWTs stored in cookies passed back and forth from client to server. When the user logs in or signs up through a form, the request is sent through a Next.js server action to the Javalin server, which makes a call to the database through with HikariCP (to pool connections) to verify the given credentials. If successful, the Java backend will send back a successful response to the browser containing the user info, an httpOnly, secure cookie containing the encrypted access token and an httpOnly, secure cookie containing the encrypted refresh token. This is stored in the browser and attached to API calls to the backend in the Next.js proxy layer.
 
+
 ### Authorization
+
 
 When a user makes a request to an API route that requires authentication, the Middleware class is run before the request and checks if the user has a valid access token in the Authorization header. If so, we allow the request to be sent to the endpoint. If not, we return a 401 status code. When the Next.js proxy layer receives a 401 status code, it will attempt to call the /api/auth/refresh endpoint to get a new access token. If successful, the Next.js proxy layer will retry the request with the new access token, otherwise it will display an error message to the user and redirect them to the home page.
 
