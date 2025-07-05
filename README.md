@@ -2,7 +2,7 @@
 
 
 
-### The frontend for a Reading Progress Tracker application. 
+## The frontend for a Reading Progress Tracker application. 
 
 
 Our frontend utilizes a Backend-For-Frontend architecture where as much of the rendering work is done on the server as possible. This allows us to optimize performance in a variety of methods and reduce the bundle size that needs to be sent to the client.
@@ -108,7 +108,7 @@ Traditionally, navigation to a server-rendered page triggers a full page load. T
    
 Client-side transitions are what makes a server-rendered apps feel like client-rendered apps. And when paired with prefetching and streaming, it enables fast transitions, even for dynamic routes.
 
-Using PPR we optimize this further by dividing a page into a static shell and a streamed dynamic section:
+Using PPR, we optimize this further by dividing a page into a static shell and a streamed dynamic section:
 
 The shell, which can be prefetched, streams immediately
 Dynamic data streams when ready
@@ -118,13 +118,6 @@ Data invalidations (revalidateTag, revalidatePath) silently refresh associated p
 ## How it all comes together
 
 
-In Next.js, Layouts and Pages are React Server Components by default. On initial and subsequent navigations, the Server Component Payload is generated on the server before being sent to the client.
-
-There are two types of server rendering, based on when it happens:
-
-Static Rendering (or Prerendering) happens at build time or during revalidation and the result is cached.
-Dynamic Rendering happens at request time in response to a client request.
-The trade-off of server rendering is that the client must wait for the server to respond before the new route can be shown. Next.js addresses this delay by prefetching routes the user is likely to visit and performing client-side transitions.
 
 ## Authentication and Authorization
 
