@@ -6,7 +6,7 @@ Our frontend utilizes a Backend-For-Frontend architecture where as much of the r
 
 The overall structure of the entire application is as follows:
 
-We have a Next.js application deployed through Vercel, which runs in the client's browser runtime environment as well as on a Node.js runtime environment through serverless functions (basically, AWS Lambda functions spin up managed EC2 instances where you don't need to interact manually with the server, and Vercel adds a layer abstraction on top of this to spin up AWS Lambda Functions through their platform). Our Next.js backend is connected to our Javalin RESTful API deployed on an AWS EC2 instance through a Docker container, which is connected to our MySQL database managed by AWS RDS. We utilize Next.js as a proxy layer between the client and the Javalin server, which allows us to keep all of our calls to the Javalin server on the server side, which enhances security by hiding sensitive data from the client, validates and sanitizes all user inputs, etc. It also greatly enhances performance by allowing us to caching our statically rendered routes (technically caching their RSC Payload, we also cache the static components of our dynamically rendered routes through Next.js's experimental Partial Prerendering), caching our requests to the Javalin server with its Data Cache along with a few other caching layers detailed below.
+We have a Next.js application deployed through Vercel, which runs in the client's browser runtime environment as well as on a Node.js runtime environment through serverless functions (basically, AWS Lambda functions spin up managed EC2 instances where you don't need to interact manually with the server, and Vercel adds a layer abstraction on top of this to spin up AWS Lambda Functions through their platform). Our Next.js backend is connected to our Javalin RESTful API deployed on an AWS EC2 instance through a Docker container, which is connected to our MySQL database managed by AWS RDS. We utilize Next.js as a proxy layer between the client and the Javalin server, which allows us to keep all of our calls to the Javalin server on the server side, which enhances security by hiding sensitive data from the client, validates and sanitizes all user inputs, etc. It also greatly enhances performance by allowing us to cache our statically rendered routes (technically caching their RSC Payload, we also cache the static components of our dynamically rendered routes through Next.js's experimental Partial Prerendering), caching our requests to the Javalin server with its Data Cache along with a few other caching layers detailed below.
 
 ## Technologies Used
 
@@ -44,16 +44,16 @@ This means we should move as much rendering to the server side as we can to keep
 
 There exists so many layers of caching in React and Next.js alone for both frontend and backend caching without even reaching for Tanstack Query (formerly React Query), SWR, browser caching headers, Redis/Upstash etc, so the built-in caching mechanisms are plenty useful.
 
-1. React Fetch Memoization (Server-Side). Across the span of a render, React overides the fetch API to memoize fetch requests where React will check if that fetch call with the same url and options has already been made during that render and use the cached result instead if it exists. All fetch request memoizations are invalidated after the render completes. React does this automatically for us.
+1. React Fetch Memoization (Server-Side). Across the span of a render, React overrides the fetch API to memoize fetch requests where React will check if that fetch call with the same url and options has already been made during that render and use the cached result instead if it exists. All fetch request memoizations are invalidated after the render completes. React does this automatically for us.
    
 2. React cache function (Server-Side)
-   Same sort of per-render memorization, but can wrap non-fetch functions. Not used here but would've used if I was using my database directly through Next.js instead of using Next.js as an API proxy for a separate backend.
+   Same sort of per-render memorization, but can wrap non-fetch functions. Not used here, but would've used if I was querying my database directly through Next.js instead of using Next.js as an API proxy for a separate backend.
 
 3. Next.js Data Cache (Server-Side)
   Next.js then overrides the fetch function further to cache results persistently across renders, requests and even deployments, with different strategies for revalidation (time-based or tag-based revalidation). We use this to cache our more expensive fetch requests to our backend and revalidate through tabs when necessary.
 
 4. Next.js Unstable Cache (Server-Side)
-   Similar to the relationship between Request Memoization and the cache function. Next's unstable cache can wrap functions that don't rely on the fetch function and can cache it in the Data Cache.
+   Similar to the relationship between Request Memoization and the cache function. Next's unstable cache can wrap functions that don't rely on the fetch function and can cache their responses persistently in the Data Cache.
 
 5. Next.js Full Route Cache (Server-Side)
    This is what allows for prerendering/static rendering. Next.js caches the RSC Payload of your static routes, layouts and loading files and allows them to be served to the client instantly. With PPR, we can cache certain layouts and components for dynamic routes.
@@ -65,12 +65,15 @@ There exists so many layers of caching in React and Next.js alone for both front
 
 
 
-## Auth
+## Authentication and Authorization
 
-We utilize JWTs stored in cookies passed back and forth from client to server. When the user logs in or signs up through a form, the request is sent through a Next.js server action to the Java backend, which makes a call to the database through a database connection manager to verify the given credentials. If successful, the Java backend will send back a successful response to the browser containing the user info, a cookie containing the access token and a cookie containing a refresh token and its . 
+### Authentication
 
-Before I get any further, let me explain server actions and server functions which are critical in managing our cookies we store our users' data, access tokens and refresh tokens.
-A Server Function is an asynchronous function that runs on the server. They can be called from client through a network request, which is why they must be asynchronous.
+We utilize JWTs stored in cookies passed back and forth from client to server. When the user logs in or signs up through a form, the request is sent through a Next.js server action to the Javalin server, which makes a call to the database through with HikariCP (to pool connections) to verify the given credentials. If successful, the Java backend will send back a successful response to the browser containing the user info, an httpOnly, secure cookie containing the encrypted access token and an httpOnly, secure cookie containing the encrypted refresh token. This is stored in the browser and attached to API calls to the backend in the Next.js proxy layer.
+
+### Authorization
+
+When a user makes a request to an API route that requires authentication, the Middleware class is run before the request and checks if the user has a valid access token in the Authorization header. If not, we return a 401 status code. When the Next.js proxy layer receives a 401 status code, it will attempt to call the /api/auth/refresh endpoint to get a new access token. If successful, the Next.js proxy layer will retry the request with the new access token, otherwise it will display an error message to the user and redirect them to the home page.
 
 
 
