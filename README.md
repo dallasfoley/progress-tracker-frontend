@@ -54,7 +54,9 @@ Each chunk is rendered in two steps:
 
 1. React renders Server Components into a special data format, optimized for streaming, called the React Server Component (RSC) Payload which contains the rendered result of Server Components, placeholders for where client components should be rendered and references to their JS files and any props passed from a server component to a client component.
    
-2. Next.js uses the RSC Payload and client component JS instructions to render HTML on the server. This means we don't have to wait for everything to render before caching the work or sending a response. Instead, we can stream a response as work is completed. For statically rendered routes, the RSC Payload is cached server-side for near-instant renders. 
+2. Next.js uses the RSC Payload and client component JS instructions to render HTML on the server. This means we don't have to wait for everything to render before caching the work or sending a response. Instead, we can stream a response as work is completed. For statically rendered routes, the RSC Payload is cached server-side for near-instant renders.
+
+Streaming (a very important rendering concept we employ often): Streaming splits the route into chunks and progressively streams them to the client as they render. This allows the user to see parts of the page immediately (the pre-rendered layout and loading page), before the entire content has finished rendering. In Partial Prerendering, dynamic components wrapped in Suspense start streaming from the server in parallel.
 
 At request time on the client, the HTML is used to immediately show a fast non-interactive initial preview of the client and server components.
 The RSC Payload is used to reconcile the client and rendered server component trees, and update the DOM.
@@ -89,12 +91,44 @@ There exists so many layers of caching in React and Next.js alone, for mostly ba
 
 5. Next.js Router Cache (Client-Side).
    
-   This is a client-side, in-memory store of the RSC payload of route segments, split by layouts, loading states, and pages. When a user navigates between routes, Next.js caches the visited route segments and prefetches the routes the user is likely to navigate to from the Full Route Cache. This results in instant back/forward navigation, no full-page reload between navigations, and preservation of browser state and React state in shared layouts.
+   This is a client-side, in-memory store of the RSC payload of route segments, split by layouts, loading states, and pages. When a user navigates between routes, Next.js caches the visited route segments and prefetches the routes the user is likely to navigate to from the Full Route Cache. This results in instant back/forward navigation, no full-page reload between navigations, and preservation of browser state and React state in shared layouts. The Router Cache is what enables prefetching.
 
 
 ## Prefetching
 
 
+When navigating between routes, the browser requests assets for the page like HTML and JavaScript files. Prefetching is the process of fetching these resources ahead of time, before you navigate to a new route.
+
+Next.js automatically splits your application into smaller JavaScript chunks based on routes. Instead of loading all the code upfront like traditional SPAs, only the code needed for the current route is loaded. This reduces the initial load time while other parts of the app are loaded in the background. By the time you click the link, the resources for the new route have already been loaded into the browser cache.
+
+When navigating to the new page, there's no full page reload or browser loading spinner. Instead, Next.js performs a client-side transition, making the page navigation feel instant.
+
+Traditionally, navigation to a server-rendered page triggers a full page load. This clears state, resets scroll position, and blocks interactivity.
+
+Next.js avoids this with client-side transitions using the <Link> component. Instead of reloading the page, it updates the content dynamically by:
+
+1. Keeping any shared layouts and UI.
+2. Replacing the current page with the prefetched loading state or a new page if available.
+   
+Client-side transitions are what makes a server-rendered apps feel like client-rendered apps. And when paired with prefetching and streaming, it enables fast transitions, even for dynamic routes.
+
+Using PPR we optimize this further by dividing a page into a static shell and a streamed dynamic section:
+
+The shell, which can be prefetched, streams immediately
+Dynamic data streams when ready
+Data invalidations (revalidateTag, revalidatePath) silently refresh associated prefetches
+
+
+## How it all comes together
+
+
+In Next.js, Layouts and Pages are React Server Components by default. On initial and subsequent navigations, the Server Component Payload is generated on the server before being sent to the client.
+
+There are two types of server rendering, based on when it happens:
+
+Static Rendering (or Prerendering) happens at build time or during revalidation and the result is cached.
+Dynamic Rendering happens at request time in response to a client request.
+The trade-off of server rendering is that the client must wait for the server to respond before the new route can be shown. Next.js addresses this delay by prefetching routes the user is likely to visit and performing client-side transitions.
 
 ## Authentication and Authorization
 
@@ -108,7 +142,7 @@ We utilize JWTs stored in cookies passed back and forth from client to server. W
 ### Authorization
 
 
-When a user makes a request to an API route that requires authentication, the Middleware class is run before the request and checks if the user has a valid access token in the Authorization header. If so, we allow the request to be sent to the endpoint. If not, we return a 401 status code. When the Next.js proxy layer receives a 401 status code, it will attempt to call the /api/auth/refresh endpoint to get a new access token. If successful, the Next.js proxy layer will retry the request with the new access token, otherwise it will display an error message to the user and redirect them to the home page.
+When a user makes a request to an API route on our Java backend that requires authentication, the Java Middleware class is run before the request and checks if the user has a valid access token in the Authorization header. If so, we allow the request to be sent to the endpoint. If not, we return a 401 status code. When the Next.js proxy layer receives a 401 status code, it will attempt to call the /api/auth/refresh endpoint to get a new access token. If successful, the Next.js proxy layer will retry the request with the new access token, otherwise it will display an error message to the user and redirect them to the home page.
 
 
 
