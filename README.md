@@ -32,9 +32,15 @@ These two concepts are extremely intertwined in Next.js
 ### Rendering
 
 Rendering is essentially the process of Next running your code and producing HTML hydrated with JS and CSS. 
-On the server, Next.js uses React's APIs to orchestrate rendering. The rendering work is split into chunks: by individual routes segments and Suspense boundaries. Each chunk is rendered in two steps:
-React renders Server Components into a special data format, optimized for streaming, called the React Server Component (RSC) Payload which contains the rendered result of Server Components, placeholders for where client components should be rendered and references to their JS files and any props passed from a server component to a client component.
-Next.js uses the RSC Payload and client component JS instructions to render HTML on the server. This means we don't have to wait for everything to render before caching the work or sending a response. Instead, we can stream a response as work is completed. For statically rendered routes, the RSC Payload is cached server-side for near-instant renders. 
+
+On the server, Next.js uses React's APIs to orchestrate rendering. The rendering work is split into chunks: by individual routes segments and Suspense boundaries. 
+
+Each chunk is rendered in two steps:
+
+1. React renders Server Components into a special data format, optimized for streaming, called the React Server Component (RSC) Payload which contains the rendered result of Server Components, placeholders for where client components should be rendered and references to their JS files and any props passed from a server component to a client component.
+   
+2. Next.js uses the RSC Payload and client component JS instructions to render HTML on the server. This means we don't have to wait for everything to render before caching the work or sending a response. Instead, we can stream a response as work is completed. For statically rendered routes, the RSC Payload is cached server-side for near-instant renders. 
+
 At request time on the client, the HTML is used to immediately show a fast non-interactive initial preview of the client and server components.
 The RSC Payload is used to reconcile the client and rendered server component trees, and update the DOM.
 The JavaScript instructions are used to hydrate client components and make the application interactive.
@@ -44,21 +50,28 @@ This means we should move as much rendering to the server side as we can to keep
 
 There exists so many layers of caching in React and Next.js alone, for mostly backend caching but some frontend caching, that we don't need to reach for other third-party caching solutions such as Tanstack Query (formerly React Query), SWR, Redis/Upstash, etc. Understanding how they each work separately and together is crucial for building a functioning frontend in Next.
 
-1. React Fetch Memoization (Server-Side). Across the span of a render, React overrides the fetch API to memoize fetch requests where React will check if that fetch call with the same url and options has already been made during that render and use the cached result instead if it exists. All fetch request memoizations are invalidated after the render completes. React does this automatically for us.
+1. React Fetch Memoization (Server-Side)
+  
+   Across the span of a render, React overrides the fetch API to memoize fetch requests where React will check if that fetch call with the same url and options has already been made during that render and use the cached result instead if it exists. All fetch request memoizations are invalidated after the render completes. React does this automatically for us.
    
 2. React cache function (Server-Side)
+
    Same sort of per-render memorization, but can wrap non-fetch functions. Not used here, but would've used if I was querying my database directly through Next.js instead of using Next.js as an API proxy for a separate backend.
 
 3. Next.js Data Cache (Server-Side)
-  Next.js then overrides the fetch function further to cache results persistently across renders, requests and even deployments, with different strategies for revalidation (time-based or tag-based revalidation). We use this to cache our more expensive fetch requests to our backend and revalidate through tabs when necessary.
+
+   Next.js then overrides the fetch function further to cache results persistently across renders, requests and even deployments, with different strategies for revalidation (time-based or tag-based revalidation). We use this to cache our more expensive fetch requests to our backend and revalidate through tabs when necessary.
 
 4. Next.js Unstable Cache (Server-Side)
+
    Similar to the relationship between Request Memoization and the cache function. Next's unstable cache can wrap functions that don't rely on the fetch function and can cache their responses persistently in the Data Cache.
 
 5. Next.js Full Route Cache (Server-Side)
+
    This is what allows for prerendering/static rendering. Next.js caches the RSC Payload of your static routes, layouts and loading files and allows them to be served to the client instantly. With PPR, we can cache certain layouts and components for dynamic routes.
 
-6. Next.js Router Cache (Client-Side).
+5. Next.js Router Cache (Client-Side).
+   
    This is a client-side, in-memory store of the RSC payload of route segments, split by layouts, loading states, and pages. When a user navigates between routes, Next.js caches the visited route segments and prefetches the routes the user is likely to navigate to from the Full Route Cache. This results in instant back/forward navigation, no full-page reload between navigations, and preservation of browser state and React state in shared layouts.
 
 
@@ -74,7 +87,7 @@ We utilize JWTs stored in cookies passed back and forth from client to server. W
 
 ### Authorization
 
-When a user makes a request to an API route that requires authentication, the Middleware class is run before the request and checks if the user has a valid access token in the Authorization header. If not, we return a 401 status code. When the Next.js proxy layer receives a 401 status code, it will attempt to call the /api/auth/refresh endpoint to get a new access token. If successful, the Next.js proxy layer will retry the request with the new access token, otherwise it will display an error message to the user and redirect them to the home page.
+When a user makes a request to an API route that requires authentication, the Middleware class is run before the request and checks if the user has a valid access token in the Authorization header. If so, we allow the request to be sent to the endpoint. If not, we return a 401 status code. When the Next.js proxy layer receives a 401 status code, it will attempt to call the /api/auth/refresh endpoint to get a new access token. If successful, the Next.js proxy layer will retry the request with the new access token, otherwise it will display an error message to the user and redirect them to the home page.
 
 
 
