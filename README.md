@@ -38,7 +38,6 @@ This means we should move as much rendering to the server side as we can to keep
 ### The many layers of caching
 There exists so many layers of caching in React and Next.js alone for both frontend and backend caching without even reaching for Tanstack Query (formerly React Query), SWR, browser caching headers, Redis/Upstash etc, so the built-in caching mechanisms are plenty useful.
 
-#### Fetch Request Memoization and React cache
 1. React Fetch Memoization (Server-Side). Across the span of a render, React overides the fetch API to memoize fetch requests where React will check if that fetch call with the same url and options has already been made during that render and use the cached result instead if it exists. All fetch request memoizations are invalidated after the render completes. React does this automatically for us.
    
 2. React cache function (Server-Side). Same sort of per-render memorization, but can wrap non-fetch functions. Not used here but would've used if I was using my database directly through Next.js instead of using Next.js as an API proxy for a separate backend.
@@ -61,8 +60,6 @@ We utilize JWTs stored in cookies passed back and forth from client to server. W
 
 Before I get any further, let me explain server actions and server functions which are critical in managing our cookies we store our users' data, access tokens and refresh tokens.
 A Server Function is an asynchronous function that runs on the server. They can be called from client through a network request, which is why they must be asynchronous.
-
-## Optimizations
 
 
 
