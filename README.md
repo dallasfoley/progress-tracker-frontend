@@ -6,7 +6,7 @@ Our frontend utilizes a Backend-For-Frontend architecture where as much of the r
 
 The overall structure of the entire application is as follows:
 
-We have a Next.js application deployed through Vercel, which runs in the client's browser runtime environment as well as on a Node.js runtime environment through serverless functions (basically, AWS Lambda functions spin up managed EC2 instances where you don't need to interact manually with the server, Vercel adds a layer abstraction on top of this to spin up AWS Lambda Functions. Our Next.js backend is connected to our Javalin RESTful API deployed on an AWS EC2 instance through a Docker container, which is connected to our MySQL database managed by AWS RDS. We utilize JSON Web Tokens for auth.
+We have a Next.js application deployed through Vercel, which runs in the client's browser runtime environment as well as on a Node.js runtime environment through serverless functions (basically, AWS Lambda functions spin up managed EC2 instances where you don't need to interact manually with the server, and Vercel adds a layer abstraction on top of this to spin up AWS Lambda Functions through their platform). Our Next.js backend is connected to our Javalin RESTful API deployed on an AWS EC2 instance through a Docker container, which is connected to our MySQL database managed by AWS RDS. We utilize Next.js as a proxy layer between the client and the Javalin server, which allows us to keep all of our calls to the Javalin server on the server side, which enhances security by hiding sensitive data from the client, validates and sanitizes all user inputs, etc. It also greatly enhances performance by allowing us to caching our statically rendered routes (technically caching their RSC Payload, we also cache the static components of our dynamically rendered routes through Next.js's experimental Partial Prerendering), caching our requests to the Javalin server with its Data Cache along with a few other caching layers detailed below.
 
 ## Technologies Used
 
@@ -26,7 +26,12 @@ A TypeScript and Tailwind compatible component UI library for a variety of JS fr
 Zod is basically another type wrapper over our TypeScript that allows us to create much more complex type schemas than with TypeScript that can be used to validate and parse data. It also integrates extremely well with React-Hook-Form and Shadcn UI Form components (Shadcn UI forms are meant to be built with Zod and React-Hook-Form).
 
 ## Rendering and Caching
-These two concepts are extremely intertwined in Next.js. Rendering is essentially the process of Next running your code and producing HTML hydrated with JS and CSS. 
+
+These two concepts are extremely intertwined in Next.js
+
+### Rendering
+
+Rendering is essentially the process of Next running your code and producing HTML hydrated with JS and CSS. 
 On the server, Next.js uses React's APIs to orchestrate rendering. The rendering work is split into chunks: by individual routes segments and Suspense boundaries. Each chunk is rendered in two steps:
 React renders Server Components into a special data format, optimized for streaming, called the React Server Component (RSC) Payload which contains the rendered result of Server Components, placeholders for where client components should be rendered and references to their JS files and any props passed from a server component to a client component.
 Next.js uses the RSC Payload and client component JS instructions to render HTML on the server. This means we don't have to wait for everything to render before caching the work or sending a response. Instead, we can stream a response as work is completed. For statically rendered routes, the RSC Payload is cached server-side for near-instant renders. 
@@ -36,19 +41,25 @@ The JavaScript instructions are used to hydrate client components and make the a
 This means we should move as much rendering to the server side as we can to keep the JS bundle small and the hydration time low. 
 
 ### The many layers of caching
+
 There exists so many layers of caching in React and Next.js alone for both frontend and backend caching without even reaching for Tanstack Query (formerly React Query), SWR, browser caching headers, Redis/Upstash etc, so the built-in caching mechanisms are plenty useful.
 
 1. React Fetch Memoization (Server-Side). Across the span of a render, React overides the fetch API to memoize fetch requests where React will check if that fetch call with the same url and options has already been made during that render and use the cached result instead if it exists. All fetch request memoizations are invalidated after the render completes. React does this automatically for us.
    
-2. React cache function (Server-Side). Same sort of per-render memorization, but can wrap non-fetch functions. Not used here but would've used if I was using my database directly through Next.js instead of using Next.js as an API proxy for a separate backend.
+2. React cache function (Server-Side)
+   Same sort of per-render memorization, but can wrap non-fetch functions. Not used here but would've used if I was using my database directly through Next.js instead of using Next.js as an API proxy for a separate backend.
 
-3. Next.js Data Cache (Server-Side). Next.js then overrides the fetch function further to cache results persistently across renders, requests and even deployments, with different strategies for revalidation (time-based or tag-based revalidation). We use this to cache our more expensive fetch requests to our backend and revalidate through tabs when necessary.
+3. Next.js Data Cache (Server-Side)
+  Next.js then overrides the fetch function further to cache results persistently across renders, requests and even deployments, with different strategies for revalidation (time-based or tag-based revalidation). We use this to cache our more expensive fetch requests to our backend and revalidate through tabs when necessary.
 
-4. Next.js Unstable Cache (Server-Side). Similar to the relationship between Request Memoization and the cache function. Next's unstable cache can wrap functions that don't rely on the fetch function and can cache it in the Data Cache.
+4. Next.js Unstable Cache (Server-Side)
+   Similar to the relationship between Request Memoization and the cache function. Next's unstable cache can wrap functions that don't rely on the fetch function and can cache it in the Data Cache.
 
-5. Next.js Full Route Cache (Server-Side). This is what allows for prerendering/static rendering/static site generation. Next.js caches the RSC Payload of your static routes and allows them to be served to the client instantly. With PPR, we can cache certain layouts and components for dynamic routes.
+5. Next.js Full Route Cache (Server-Side)
+   This is what allows for prerendering/static rendering. Next.js caches the RSC Payload of your static routes, layouts and loading files and allows them to be served to the client instantly. With PPR, we can cache certain layouts and components for dynamic routes.
 
 6. Next.js Router Cache (Client-Side).
+   This is a client-side, in-memory store of the RSC payload of route segments, split by layouts, loading states, and pages. When a user navigates between routes, Next.js caches the visited route segments and prefetches the routes the user is likely to navigate to from the Full Route Cache. This results in instant back/forward navigation, no full-page reload between navigations, and preservation of browser state and React state in shared layouts.
 
 
 
