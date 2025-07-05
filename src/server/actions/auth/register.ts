@@ -38,7 +38,7 @@ export async function register(formData: {
         response.json(),
         cookies(),
       ]);
-      cookieStore.set("user", res.data, {
+      cookieStore.set("user", JSON.stringify(res.data), {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "none",

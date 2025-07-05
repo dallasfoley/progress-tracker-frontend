@@ -36,7 +36,7 @@ export async function loginEmail(formData: {
         response.json(),
         cookies(),
       ]);
-      cookieStore.set("user", result.data, {
+      cookieStore.set("user", JSON.stringify(result.data), {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "none",
