@@ -1,14 +1,19 @@
 # Progress Tracker Frontend
 
+
 ### The frontend for a Reading Progress Tracker application. 
 
 Our frontend utilizes a Backend-For-Frontend architecture where as much of the rendering work is done on the server as possible. This allows us to optimize performance in a variety of methods and reduce the bundle size that needs to be sent to the client.
 
 The overall structure of the entire application is as follows:
 
-We have a Next.js application deployed through Vercel, which runs in the client's browser runtime environment as well as on a Node.js runtime environment through serverless functions (basically, AWS Lambda functions spin up managed EC2 instances where you don't need to interact manually with the server, and Vercel adds a layer abstraction on top of this to spin up AWS Lambda Functions through their platform). Our Next.js backend is connected to our Javalin RESTful API deployed on an AWS EC2 instance through a Docker container, which is connected to our MySQL database managed by AWS RDS. We utilize Next.js as a proxy layer between the client and the Javalin server, which allows us to keep all of our calls to the Javalin server on the server side, which enhances security by hiding sensitive data from the client, validates and sanitizes all user inputs, etc. It also greatly enhances performance by allowing us to cache our statically rendered routes (technically caching their RSC Payload, we also cache the static components of our dynamically rendered routes through Next.js's experimental Partial Prerendering), caching our requests to the Javalin server with its Data Cache along with a few other caching layers detailed below.
+We have a Next.js application deployed through Vercel, which runs in the client's browser runtime environment as well as on a Node.js runtime environment through serverless functions (basically, AWS Lambda functions spin up managed EC2 instances where you don't need to interact manually with the server, and Vercel adds a layer abstraction on top of this to spin up AWS Lambda Functions through their platform). Our Next.js backend is connected to our Javalin RESTful API deployed on an AWS EC2 instance through a Docker container, which is connected to our MySQL database managed by AWS RDS. 
+
+We utilize Next.js as a proxy layer between the client and the Javalin server, which allows us to keep all of our calls to the Javalin server on the server side, enhancing security by hiding sensitive data from the client, parsing/validating user inputs, etc. It also greatly enhances performance through prerendering and prefetching routes and allowing us to cache our statically rendered routes, and caching the responses from our Javalin server with its Data Cache, along with a few other caching layers detailed below.
+
 
 ## Technologies Used
+
 
 ### Next.js
 Next.js is all about optimizing the performance of our React frontend, particularly optimizing how our pages are rendered, how we cache our pages/components/functions and SEO. Next.js proposes a model where as much of the frontend functionality as possible, usually rendering and data fetching/updating, is pushed to the backend. This can allow us to prerender our static pages (HTML that does not need to be generated at request time) and cache them in Vercel's Edge Network at build time so they can be rendered and hydrated instantly on the client. Dynamic pages, on the other hand, must be generated at request time. However, we can use Next to stream in components as their data is fetched. We also utilize Next.js's experimental Partial Prerendering (PPR) feature, which allows us to combine dynamic and static rendering to prerender and cache our static components while only dynamically rendering the components that need to be, on the same page. Much more on all of this below.
@@ -25,7 +30,9 @@ A TypeScript and Tailwind compatible component UI library for a variety of JS fr
 ### Zod 
 Zod is basically another type wrapper over our TypeScript that allows us to create much more complex type schemas than with TypeScript that can be used to validate and parse data. It also integrates extremely well with React-Hook-Form and Shadcn UI Form components (Shadcn UI forms are meant to be built with Zod and React-Hook-Form).
 
+
 ## Rendering and Caching
+
 
 These two concepts are extremely intertwined in Next.js
 
@@ -46,7 +53,9 @@ The RSC Payload is used to reconcile the client and rendered server component tr
 The JavaScript instructions are used to hydrate client components and make the application interactive.
 This means we should move as much rendering to the server side as we can to keep the JS bundle small and the hydration time low. 
 
+
 ### The many layers of caching
+
 
 There exists so many layers of caching in React and Next.js alone, for mostly backend caching but some frontend caching, that we don't need to reach for other third-party caching solutions such as Tanstack Query (formerly React Query), SWR, Redis/Upstash, etc. Understanding how they each work separately and together is crucial for building a functioning frontend in Next.
 
@@ -75,11 +84,12 @@ There exists so many layers of caching in React and Next.js alone, for mostly ba
    This is a client-side, in-memory store of the RSC payload of route segments, split by layouts, loading states, and pages. When a user navigates between routes, Next.js caches the visited route segments and prefetches the routes the user is likely to navigate to from the Full Route Cache. This results in instant back/forward navigation, no full-page reload between navigations, and preservation of browser state and React state in shared layouts.
 
 
-
+## Prefetching
 
 
 
 ## Authentication and Authorization
+
 
 ### Authentication
 
