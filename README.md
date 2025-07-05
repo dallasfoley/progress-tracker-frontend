@@ -42,7 +42,7 @@ This means we should move as much rendering to the server side as we can to keep
 
 ### The many layers of caching
 
-There exists so many layers of caching in React and Next.js alone for both frontend and backend caching without even reaching for Tanstack Query (formerly React Query), SWR, browser caching headers, Redis/Upstash etc, so the built-in caching mechanisms are plenty useful.
+There exists so many layers of caching in React and Next.js alone, for mostly backend caching but some frontend caching, that we don't need to reach for other third-party caching solutions such as Tanstack Query (formerly React Query), SWR, Redis/Upstash, etc. Understanding how they each work separately and together is crucial for building a functioning frontend in Next.
 
 1. React Fetch Memoization (Server-Side). Across the span of a render, React overrides the fetch API to memoize fetch requests where React will check if that fetch call with the same url and options has already been made during that render and use the cached result instead if it exists. All fetch request memoizations are invalidated after the render completes. React does this automatically for us.
    
@@ -60,6 +60,7 @@ There exists so many layers of caching in React and Next.js alone for both front
 
 6. Next.js Router Cache (Client-Side).
    This is a client-side, in-memory store of the RSC payload of route segments, split by layouts, loading states, and pages. When a user navigates between routes, Next.js caches the visited route segments and prefetches the routes the user is likely to navigate to from the Full Route Cache. This results in instant back/forward navigation, no full-page reload between navigations, and preservation of browser state and React state in shared layouts.
+
 
 
 
