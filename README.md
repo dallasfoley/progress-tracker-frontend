@@ -4,14 +4,11 @@
 
 ## The frontend for a Reading Progress Tracker application. 
 
-
-Our frontend utilizes a Backend-For-Frontend architecture where as much of the rendering work is done on the server as possible. This allows us to optimize performance in a variety of methods and reduce the bundle size that needs to be sent to the client.
-
 The overall structure of the entire application is as follows:
 
 We have a Next.js application deployed through Vercel, which runs in the client's browser runtime environment as well as on a Node.js runtime environment through serverless functions (basically, AWS Lambda functions spin up managed EC2 instances where you don't need to interact manually with the server, and Vercel adds a layer abstraction on top of this to spin up AWS Lambda Functions through their platform). Our Next.js backend is connected to our Javalin RESTful API deployed on an AWS EC2 instance through a Docker container, which is connected to our MySQL database managed by AWS RDS. 
 
-We utilize Next.js as a proxy layer between the client and the Javalin server, which allows us to keep all of our calls to the Javalin server on the server side, enhancing security by hiding sensitive data from the client, parsing/validating user inputs, etc. It also greatly enhances performance through prerendering and prefetching routes and allowing us to cache our statically rendered routes, and caching the responses from our Javalin server with its Data Cache, along with a few other caching layers detailed below.
+We utilize Next.js as a proxy layer between the client and the Javalin server, which allows us to keep all of our calls to the Javalin server on the server side, enhancing security by hiding sensitive data from the client, parsing/validating user inputs, etc. It also greatly enhances performance through many caching layers, detailed below.
 
 
 ## Technologies Used
@@ -35,6 +32,8 @@ A TypeScript and Tailwind compatible component UI library for a variety of JS fr
 
 ### Zod 
 Zod is basically another type wrapper over our TypeScript that allows us to create much more complex type schemas than with TypeScript that can be used to validate and parse data. It also integrates extremely well with React-Hook-Form and Shadcn UI Form components (Shadcn UI forms are meant to be built with Zod and React-Hook-Form).
+
+### React-Hook-Form
 
 
 ## Rendering and Caching
