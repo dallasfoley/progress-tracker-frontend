@@ -8,14 +8,26 @@ The overall structure of the entire application is as follows:
 
 We have a Next.js application deployed through Vercel, which runs in the client's browser runtime environment as well as on a Node.js runtime environment through serverless functions (basically, AWS Lambda functions spin up managed EC2 instances where you don't need to interact manually with the server, and Vercel adds a layer abstraction on top of this to spin up AWS Lambda Functions through their platform). Our Next.js backend is connected to our Javalin RESTful API deployed on an AWS EC2 instance through a Docker container, which is connected to our MySQL database managed by AWS RDS. 
 
-We utilize Next.js as a proxy layer between the client and the Javalin server, which allows us to keep all of our calls to the Javalin server on the server side, enhancing security by hiding sensitive data from the client, parsing/validating user inputs, etc. It also greatly enhances performance through many caching layers, detailed below.
+We utilize Next.js as a proxy layer between the client and the Javalin server, which allows us to keep all of our calls to the Javalin server on the server side, enhancing security by hiding sensitive data from the client, parsing/validating user inputs, etc. It also greatly enhances performance through prerendering, prefetching and many caching layers, detailed below.
 
 
 ## Technologies Used
 
 
 ### Next.js
-Next.js is all about optimizing the performance of our React frontend, particularly optimizing how our pages are rendered, how we cache our pages/components/functions and SEO. Next.js proposes a model where as much of the frontend functionality as possible, usually rendering and data fetching/updating, is pushed to the backend. This can allow us to prerender our static pages (HTML that does not need to be generated at request time) and cache them in Vercel's Edge Network at build time so they can be rendered and hydrated instantly on the client. Dynamic pages, on the other hand, must be generated at request time. However, we can use Next to stream in components as their data is fetched. We also utilize Next.js's experimental Partial Prerendering (PPR) feature, which allows us to combine dynamic and static rendering to prerender and cache our static components while only dynamically rendering the components that need to be, on the same page. Much more on all of this below.
+
+Before I start on why Next.js, it helps to give some background on the history of rendering webpages. 
+
+#### Traditional Multi-Page Application (MPA)
+
+This is how websites were traditionally rendered (back in the dark ages of PHP/WordPress), where each page is a separate HTML document. When a user navigates between pages, the browser makes a request to the server, which returns a newly rendered, complete HTML page. This causes a full page reload, which is not great for performance.
+
+#### Single-Page Applications (SPA)
+
+SPAs made with purely client-side frameworks/libraries such as React and Angular attempt to solve the performance issues of MPAs by downloading all the HTML, CSS and JavaScript when the user initially navigates to the site. Then subsequent navigations don't require full-page reloads: rather than requesting a new document for each route, client-side JavaScript manipulates the current page’s DOM and fetches data as needed. This results in instant page navigations for routes that don't require fetching on load. However, frontloading the entire bundle starts to be a large problem as your app scales. Modern client-side solutions require complex patterns to manage lazy-loading routes (deferring loading of the route) and prefetching when a user is likely to navigate to them.
+
+#### Next.js
+The Next.js team attempts to bridge this gap by offering a variety of rendering strategies, allowing you to pick the best method in each case and trying their best to optimize each. You can choose static rendering, where you don't need request-time data to render your pages and build time and cache them for instant page navigations, or dynamic rendering, when you need request-time data and generate the HTML on the server and stream HTML as it becomes rendered. You can choose server-side rendering for components that don't need any client-side functionality (things like event-handlers such as onSubmit, onChange, or React hooks or browser-only APIs) to render them and only opt-in to client-components when we need to. This allows us to keep the JS bundle we send to the client small and allows for quicker navigations for routes that require fetching on render. When mixed with Next.js's prefetching, we can achieve the same instant page navigations through Next.js's client-side transition. More on this below.
 
 
 ### TypeScript 
@@ -29,11 +41,34 @@ Allows us to write CSS in the same file as our JS using utility classes, allows 
 ### Shadcn UI
 A TypeScript and Tailwind compatible component UI library for a variety of JS frameworks. Typically, when building a frontend, you'd have to choose between building all the CSS and JS functionality of your UI components yourself or choose a component library where much of that work was done for you, but you couldn't easily customize these components with styling or functionality changes. Shadcn solves this by loading the Tailwind-styled components that we need right into our local code base in .tsx files, giving us a completely customizable component library.
 
+'''
+sh
+pnpm dlx shadcn@latest init
+pnpm dlx shadcn@latest add input button form label select ...
+'''
 
 ### Zod 
 Zod is basically another type wrapper over our TypeScript that allows us to create much more complex type schemas than with TypeScript that can be used to validate and parse data. It also integrates extremely well with React-Hook-Form and Shadcn UI Form components (Shadcn UI forms are meant to be built with Zod and React-Hook-Form).
 
+'''
+javascript
+export const BookSchema = z.object({
+  id: z.number().int().min(1),
+  title: z.string().min(1, "Title is required"),
+  author: z.string().min(1, "Author is required"),
+  coverUrl: z.string().url(),
+  description: z.string(),
+  rating: z.number().int().min(0).max(5),
+  yearPublished: z.number().int(),
+  genre: z.string(),
+  pageCount: z.number().int().min(1, "Page count must be at least 1"),
+});
+
+export type Book = z.infer<typeof BookSchema>;
+'''
+
 ### React-Hook-Form
+A simple solution for form validation that integrates effortlessly with our complex Zod schemas and Shadcn UI Forms (see /src/components/forms).
 
 
 ## Rendering and Caching
@@ -86,11 +121,15 @@ There exists so many layers of caching in React and Next.js alone, for mostly ba
 
 5. Next.js Full Route Cache (Server-Side)
 
-   This is what allows for prerendering/static rendering. Next.js caches the RSC Payload of your static routes, layouts and loading files and allows them to be served to the client instantly. With PPR, we can cache certain layouts and components for dynamic routes.
+   This is what allows for prerendering/static rendering. Next.js caches the RSC Payload of your static routes (each route separated into page, layout and loading files) and allows them to be served to the client instantly. Traditionally, with Next.js dynamic routes, we could statically prerender and cache their layouts and loading files, which we had to take time styling page and component skeletons and streaming in each component as it was ready in waterfall. With PPR, we can cache static components for dynamic pages and stream the dynamic components in parallel.
 
-5. Next.js Router Cache (Client-Side).
+6. Next.js Router Cache (Client-Side).
    
    This is a client-side, in-memory store of the RSC payload of route segments, split by layouts, loading states, and pages. When a user navigates between routes, Next.js caches the visited route segments and prefetches the routes the user is likely to navigate to from the Full Route Cache. This results in instant back/forward navigation, no full-page reload between navigations, and preservation of browser state and React state in shared layouts. The Router Cache is what enables prefetching.
+
+7. Next.js Experimental dynamicIO/useCache
+
+   Next.js has a couple of experimental features that once stable should standardize the way we interact with caches 3-5.
 
 
 ## Prefetching
