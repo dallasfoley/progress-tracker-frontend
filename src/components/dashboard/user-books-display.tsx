@@ -2,7 +2,7 @@ import { UserBookDetails } from "@/schema/UserBookSchema";
 import UserBook from "@/components/dashboard/userbook";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { Suspense } from "react";
+//import { Suspense } from "react";
 
 interface UserBooksDisplayProps {
   userBooks: UserBookDetails[];
@@ -31,18 +31,11 @@ export function UserBooksDisplay({
         </div>
       )}
       <ul className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3">
-        <Suspense fallback={<div>Loading...</div>}>
-          {userBooks.map((book: UserBookDetails, index: number) => (
-            <li key={book.bookId || index} className="text-zinc-200">
-              <Suspense
-                fallback={<div>Loading...</div>}
-                key={book.bookId || index}
-              >
-                <UserBook userBook={book} />
-              </Suspense>
-            </li>
-          ))}
-        </Suspense>
+        {userBooks.map((book: UserBookDetails, index: number) => (
+          <li key={book.bookId || index} className="text-zinc-200">
+            <UserBook userBook={book} />
+          </li>
+        ))}
       </ul>
     </div>
   );

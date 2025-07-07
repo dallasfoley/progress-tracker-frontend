@@ -19,6 +19,20 @@ import {
   SelectValue,
 } from "../ui/select";
 import { FaStar } from "react-icons/fa";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { useForm } from "react-hook-form";
+import {
+  UserBookChangableFields,
+  UserBookChangableFieldsSchema,
+} from "@/schema/UserBookSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function AddUserBookButton({
   book,
@@ -29,33 +43,37 @@ export default function AddUserBookButton({
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<
-    "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED"
-  >("NOT_STARTED");
-  const [currentPage, setCurrentPage] = useState(0);
-  const [userRating, setUserRating] = useState(0);
 
-  const handleValueChange = (val: string) => {
-    if (val === "NOT_STARTED") {
-      setStatus("NOT_STARTED");
-    } else if (val === "IN_PROGRESS") {
-      setStatus("IN_PROGRESS");
-    } else if (val === "COMPLETED") {
-      setStatus("COMPLETED");
-    }
-  };
+  const form = useForm<UserBookChangableFields>({
+    resolver: zodResolver(UserBookChangableFieldsSchema),
+    defaultValues: {
+      status: "NOT_STARTED",
+      currentPage: 0,
+      userRating: 0,
+    },
+  });
 
-  const onSubmit = async () => {
+  const watchedStatus = form.watch("status");
+  const watchedRating = form.watch("userRating");
+
+  const onSubmit = async (data: UserBookChangableFields) => {
     try {
-      const res = user
-        ? await addUserBook({
-            bookId: book.id,
-            userId: user.id,
-            status: status,
-            currentPage: currentPage,
-            userRating: userRating,
-          })
-        : null;
+      const res =
+        data.currentPage === book.pageCount && data.status !== "COMPLETED"
+          ? await addUserBook({
+              bookId: book.id,
+              userId: user.id,
+              status: "COMPLETED",
+              currentPage: data.currentPage,
+              userRating: data.userRating,
+            })
+          : await addUserBook({
+              bookId: book.id,
+              userId: user.id,
+              status: data.status,
+              currentPage: data.currentPage,
+              userRating: data.userRating,
+            });
 
       if (res?.success) {
         toast.success(res.message || "Book added successfully!");
@@ -67,13 +85,13 @@ export default function AddUserBookButton({
         toast.error(errorMessage);
       }
     } catch (e) {
-      // console.error("Error during login:", e);
       setError(
         e instanceof Error ? e.message : "An error occurred during login."
       );
-      toast.error(e instanceof Error && e.message);
+      toast.error(e instanceof Error ? e.message : "An error occurred");
     }
   };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -82,72 +100,119 @@ export default function AddUserBookButton({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
-        <div className="grid gap-4">
-          <div className="space-y-2">
-            <h4 className="leading-none font-medium">
-              Have you started this book yet?
-            </h4>
-          </div>
-          <RadioGroup
-            value={status}
-            defaultValue="NOT_STARTED"
-            onValueChange={(val) => handleValueChange(val)}
-          >
-            <div className="flex items-center gap-3">
-              <RadioGroupItem value="NOT_STARTED" id="r1" />
-              <Label htmlFor="r1">Want to Read</Label>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <h4 className="leading-none font-medium">
+                Have you started this book yet?
+              </h4>
             </div>
-            <div className="flex items-center gap-3">
-              <RadioGroupItem value="IN_PROGRESS" id="r2" />
-              <Label htmlFor="r2">Reading</Label>
-            </div>
-            <div className="flex items-center gap-3">
-              <RadioGroupItem value="COMPLETED" id="r3" />
-              <Label htmlFor="r3">Completed</Label>
-            </div>
-            {status === "IN_PROGRESS" && (
-              <div className="flex items-center gap-3">
-                <Label htmlFor="r3">Current Page</Label>
-                <Input
-                  type="number"
-                  value={currentPage.toString()}
-                  onChange={(e) => setCurrentPage(Number(e.target.value))}
-                />
-              </div>
-            )}
-            {status === "COMPLETED" && (
-              <div className="flex items-center gap-3">
-                <Label htmlFor="r3">User Rating</Label>
-                <Select
-                  onValueChange={(val) => setUserRating(Number(val))}
-                  defaultValue={userRating.toString()}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Rate this book" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1 Star</SelectItem>
-                    <SelectItem value="2">2 Stars</SelectItem>
-                    <SelectItem value="3">3 Stars</SelectItem>
-                    <SelectItem value="4">4 Stars</SelectItem>
-                    <SelectItem value="5">5 Stars</SelectItem>
-                  </SelectContent>
-                </Select>
-                {userRating && (
-                  <p className="flex justify-between items-center gap-2">
-                    {Array.from({ length: userRating }, (_, i) => (
-                      <FaStar key={i} />
-                    ))}
-                  </p>
+
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <RadioGroup
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      defaultValue="NOT_STARTED"
+                    >
+                      <div className="flex items-center gap-3">
+                        <RadioGroupItem value="NOT_STARTED" id="r1" />
+                        <Label htmlFor="r1">Want to Read</Label>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <RadioGroupItem value="IN_PROGRESS" id="r2" />
+                        <Label htmlFor="r2">Reading</Label>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <RadioGroupItem value="COMPLETED" id="r3" />
+                        <Label htmlFor="r3">Completed</Label>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {watchedStatus === "IN_PROGRESS" && (
+              <FormField
+                control={form.control}
+                name="currentPage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Current Page</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={book.pageCount}
+                        value={
+                          field.value === undefined || field.value === null
+                            ? ""
+                            : field.value.toString()
+                        }
+                        onChange={(e) =>
+                          form.setValue("currentPage", Number(e.target.value))
+                        }
+                        disabled={form.formState.isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
+              />
             )}
-          </RadioGroup>
-          <Button onClick={onSubmit} variant="outline">
-            Add To Reading List
-          </Button>
-          {error && <p className="text-red-500">{error}</p>}
-        </div>
+
+            {watchedStatus === "COMPLETED" && (
+              <FormField
+                control={form.control}
+                name="userRating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>User Rating</FormLabel>
+                    <div className="flex items-center gap-3">
+                      <FormControl>
+                        <Select
+                          onValueChange={(val) => field.onChange(Number(val))}
+                          defaultValue={field.value?.toString()}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Rate this book" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">1 Star</SelectItem>
+                            <SelectItem value="2">2 Stars</SelectItem>
+                            <SelectItem value="3">3 Stars</SelectItem>
+                            <SelectItem value="4">4 Stars</SelectItem>
+                            <SelectItem value="5">5 Stars</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      {watchedRating > 0 && (
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: watchedRating }, (_, i) => (
+                            <FaStar key={i} className="text-yellow-500" />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            <Button type="submit" variant="outline" className="w-full">
+              Add To Reading List
+            </Button>
+
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </form>
+        </Form>
       </PopoverContent>
     </Popover>
   );
