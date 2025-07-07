@@ -129,7 +129,7 @@ export default function BrowseBooksList({
               <SelectGroup>
                 <SelectItem value="all">All Genres</SelectItem>
                 <SelectItem value="fiction">Fiction</SelectItem>
-                <SelectItem value="children">Children's</SelectItem>
+                <SelectItem value="children">Children&apos;s</SelectItem>
                 <SelectItem value="adventure">Adventure</SelectItem>
                 <SelectItem value="romance">Romance</SelectItem>
                 <SelectItem value="fantasy">Fantasy</SelectItem>
