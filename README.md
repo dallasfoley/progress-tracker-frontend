@@ -1,12 +1,17 @@
 # Progress Tracker Frontend
 
-## The frontend for a Reading Progress Tracker application
+### The frontend for a Reading Progress Tracker application
 
-The overall structure of the entire application is as follows:
+## The overall structure of the entire application
 
-We have a Next.js application deployed through Vercel, which runs in the client's browser runtime environment as well as on a Node.js runtime environment through serverless functions (basically, AWS Lambda functions spin up managed EC2 instances where you don't need to interact manually with the server, and Vercel adds a layer abstraction on top of this to spin up AWS Lambda Functions through their platform). Our Next.js backend is connected to our Javalin RESTful API deployed on an AWS EC2 instance through a Docker container, which is connected to our MySQL database managed by AWS RDS.
+![image](https://github.com/user-attachments/assets/817a383e-9cec-4365-bd33-16106fcadedf)
 
-We utilize Next.js as a proxy layer between the client and the Javalin server, which allows us to keep all of our calls to the Javalin server on the server side, enhancing security by hiding sensitive data from the client, parsing/validating user inputs, etc. It also greatly enhances performance through prerendering, prefetching and many caching layers, detailed below.
+
+We have a Next.js application deployed through Vercel, which runs in the client's browser runtime environment as well as on a Node.js runtime environment through serverless functions. Our Next.js backend is connected to our Java/Javalin RESTful API deployed on an AWS EC2 instance through a Docker container, with an NGINX reverse proxy between the frontend and container running the backend, which is connected to our MySQL database managed by AWS RDS.
+
+Javalin is our backend framework of choice for exposing API routes to our frontend. Given how small of an API this is (4 controllers, 4 DAOs, 3 tables in our SQL schema), it didn't seem necessary to include a service layer between our DAOs and controllers. Our main class creates our DAOs and controllers, configures our CORS, access headers, cookie headers and other headers while the EnvironmentConfig and ConnectionManager load up statically.
+
+We utilize Next.js as a proxy layer between the client and the Javalin server, which allows us to keep all of the calls to the Javalin server on the server side which enhances security by hiding sensitive data from the client, validates and sanitizes all user inputs, etc. It also greatly enhances performance by allowing us to cache our statically rendered routes (technically caching their RSC Payload, we also cache the static components of our dynamically rendered routes through Next.js's experimental Partial Prerendering), caching our requests to the Javalin server with its Data Cache along with a few other caching layers detailed in the frontend README.md.
 
 ## Technologies Used
 
@@ -83,6 +88,8 @@ We utilize JWTs stored in cookies passed back and forth from client to server. W
 ### Authorization
 
 When a user makes a request to an API route on our Java backend that requires authentication, the Java Middleware class is run before the request and checks if the user has a valid access token in the Authorization header. If so, we allow the request to be sent to the endpoint. If not, we return a 401 status code. When the Next.js proxy layer receives a 401 status code, it will attempt to call the /api/auth/refresh endpoint to get a new access token with the refresh token. If successful, the Next.js proxy layer will retry the request with the new access token, otherwise it will display an error message to the user and redirect them to the home page.
+
+#### The following is my attempt of concisely explain the options Next.js gives you to optimize performance, and how we choose to optimize the performance of this application:
 
 ## Rendering and Caching
 
